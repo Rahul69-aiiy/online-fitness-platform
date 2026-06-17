@@ -1,0 +1,234 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+} 
+
+model Test {
+  id    Int     @id @default(autoincrement())
+  name  String
+}
+
+enum Role {
+  STUDENT
+  TRAINER
+}
+
+enum SessionType {
+  ONLINE
+  IN_PERSON
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum Category {
+  STRENGTH
+  YOGA
+  HIIT
+  CARDIO
+  PILATES
+  BOXING
+  MEDITATION
+  CROSSFIT
+}
+
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  password    String
+  name        String    
+  avatar      String?
+  role        Role     @default(STUDENT)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  trainerProfile   TrainerProfile?
+
+  subscriptions    Subscription[] @relation("StudentSubscriptions")
+  sessionEnrollments SessionEnrollment[]
+  sentMessages     Message[] @relation("SentMessages")
+  receivedMessages Message[] @relation("ReceivedMessages")
+
+  reviews          Review[]
+  payments         Payment[]
+}
+
+model TrainerProfile {
+  id                String   @id @default(uuid())
+
+  userId            String   @unique
+  user              User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  specialization    String
+  experience   Int
+
+  bio               String   @db.Text
+  primaryLocation   String
+
+  certifications    String[] @default([])
+  categories        Category[]
+
+  rating            Float    @default(0)
+  studentCount      Int      @default(0)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  plans             SubscriptionPlan[]
+  subscriptions     Subscription[] @relation("TrainerSubscriptions")
+  sessions          Session[]
+  reviews           Review[]
+}
+
+model SubscriptionPlan {
+  id              String   @id @default(uuid())
+
+  trainerId       String
+  trainer         TrainerProfile @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  name            String
+  description     String?
+
+  price           Decimal @db.Decimal(10,2)
+  durationDays    Int
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  subscriptions   Subscription[]
+}
+
+model Subscription {
+  id              String   @id @default(uuid())
+
+  studentId       String
+  student         User @relation("StudentSubscriptions", fields: [studentId], references: [id], onDelete: Cascade)
+
+  trainerId       String
+  trainer         TrainerProfile @relation("TrainerSubscriptions", fields: [trainerId], references: [id], onDelete: Cascade)
+
+  planId          String
+  plan            SubscriptionPlan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+  startDate       DateTime @default(now())
+  endDate         DateTime
+
+  isActive        Boolean @default(true)
+
+  payment         Payment?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([studentId])
+  @@index([trainerId])
+
+  @@unique([studentId, trainerId])
+}
+
+model Session {
+  id              String   @id @default(uuid())
+
+  trainerId       String
+  trainer         TrainerProfile @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  title           String
+  description     String   @db.Text
+
+  time            DateTime
+  duration        Int
+
+  type            SessionType
+
+  location        String // phy or meet
+
+  enrollments   SessionEnrollment[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([trainerId])
+  @@index([time])
+}
+
+model SessionEnrollment {
+  id            String @id @default(uuid())
+
+  sessionId     String
+  studentId     String
+
+  session       Session @relation(fields:[sessionId], references:[id], onDelete:Cascade)
+  student       User @relation(fields:[studentId], references:[id], onDelete:Cascade)
+
+  enrolledAt    DateTime @default(now())
+
+  @@unique([sessionId, studentId])
+}
+
+model Message {
+  id              String   @id @default(uuid())
+
+  senderId        String
+  sender          User @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+
+  receiverId      String
+  receiver        User @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
+
+  content         String   @db.Text
+
+  sentAt          DateTime @default(now())
+
+  @@index([senderId])
+  @@index([receiverId])
+}
+
+model Review {
+  id              String   @id @default(uuid())
+
+  userId          String
+  user            User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  trainerId       String
+  trainer         TrainerProfile @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+
+  rating          Int
+  comment         String @db.Text
+
+  date            DateTime @default(now())
+
+  @@unique([userId, trainerId])
+}
+
+model Payment {
+  id                String   @id @default(uuid())
+
+  studentId         String
+  student           User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  subscriptionId    String @unique
+  subscription      Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  amount            Decimal @db.Decimal(10,2)
+
+  gatewayOrderId    String?
+  gatewayPaymentId  String?
+
+  status            PaymentStatus @default(PENDING)
+
+  createdAt         DateTime @default(now())
+
+  @@index([studentId])
+}

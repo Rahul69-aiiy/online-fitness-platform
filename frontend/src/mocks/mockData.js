@@ -1,3 +1,9 @@
+import pic1 from "@/assets/pic1.webp";
+import pic2 from "@/assets/pic2.jpg";
+import pic3 from "@/assets/pic3.webp";
+import hero from "@/assets/hero.jpg"
+import session from "@/assets/session.jpg"
+
 export const TRAINERS = [
   {
     id: "1",
@@ -8,7 +14,7 @@ export const TRAINERS = [
     studentCount: 120,
     monthlyPrice: 49,
     primaryLocation: "Iron Gym, New York",
-    photo: "https://images.unsplash.com/photo-1567013127542-490d757e51fe?w=400&h=400&fit=crop",
+    photo: pic1,
     bio: "Certified strength coach helping athletes and professionals reach their peak physical performance through science-based training.",
     certifications: ["NSCA-CSCS", "NASM-CPT"],
     locations: [
@@ -25,7 +31,7 @@ export const TRAINERS = [
     studentCount: 250,
     monthlyPrice: 39,
     primaryLocation: "Zen Studio, San Francisco",
-    photo: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=400&fit=crop",
+    photo: pic2,
     bio: "Passionate yoga instructor focused on flow, breathwork, and mental clarity. Let's find your inner peace together.",
     certifications: ["RYT-500", "Yoga Alliance Certified"],
     locations: [
@@ -42,7 +48,7 @@ export const TRAINERS = [
     studentCount: 85,
     monthlyPrice: 59,
     primaryLocation: "Speed Box, Chicago",
-    photo: "https://images.unsplash.com/photo-1583454110551-21f2fa29617c?w=400&h=400&fit=crop",
+    photo: pic3,
     bio: "High-intensity training expert specializing in fat loss and athletic agility. Get ready to push your limits.",
     certifications: ["ACE-CPT", "Precision Nutrition Level 1"],
     locations: [
@@ -66,7 +72,7 @@ export const SESSIONS = [
     price: 25,
     type: "In Person",
     location: "Iron Gym, New York",
-    image: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=800&h=400&fit=crop"
+    image: hero
   },
   {
     id: "s2",
@@ -81,7 +87,7 @@ export const SESSIONS = [
     price: 15,
     type: "Online",
     location: "Zoom",
-    image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=800&h=400&fit=crop"
+    image: session
   }
 ];
 
