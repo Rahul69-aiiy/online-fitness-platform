@@ -52,28 +52,7 @@ curl http://localhost:5000/api/status
 **Register a user:**
 
 ```bash
-curl -X POST http://localhost:5000/api/auth/register \
+curl -X POST http://localhost:5000/api/auth/register/student \
   -H "Content-Type: application/json" \
-  -d '{"name":"Test User","email":"test@example.com","password":"Password123","role":"STUDENT"}'
-```
-
-## Project Structure
-
-```
-backend/
-├── prisma/
-│   └── schema.prisma      # Database schema
-├── src/
-│   ├── middleware/
-│   │   └── auth.js        # Auth middleware
-│   ├── routes/
-│   │   ├── auth.js        # Auth endpoints
-│   │   ├── trainers.js    # Trainer endpoints
-│   │   └── ...            # Other route files
-│   ├── utils/
-│   │   ├── tokens.js      # JWT utilities
-│   │   └── seed.js        # Database seeding
-│   └── server.js          # Entry point
-├── package.json
-└── .env.example
+  -d '{"name":"Test User","email":"test@example.com","password":"Password123"}'
 ```
