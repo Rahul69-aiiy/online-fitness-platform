@@ -46,15 +46,15 @@ You can test the API using tools like Postman, curl, or the frontend.
 **Test the health endpoint:**
 
 ```bash
-curl http://localhost:5000/api/v1/health
+curl http://localhost:5000/api/status
 ```
 
 **Register a user:**
 
 ```bash
-curl -X POST http://localhost:5000/api/v1/auth/register \
+curl -X POST http://localhost:5000/api/auth/register \
   -H "Content-Type: application/json" \
-  -d '{"name":"Test User","email":"test@example.com","password":"Password123!","role":"STUDENT"}'
+  -d '{"name":"Test User","email":"test@example.com","password":"Password123","role":"STUDENT"}'
 ```
 
 ## Project Structure
@@ -77,11 +77,3 @@ backend/
 ├── package.json
 └── .env.example
 ```
-
-## Next Steps
-
-1. Implement the remaining route files (`sessions.js`, `bookings.js`, etc.)
-2. Add file upload functionality for trainer photos and session images
-3. Integrate payment processing (Stripe, etc.) for subscriptions
-4. Add real-time features (WebSocket) for live sessions
-5. Write tests using Jest and Supertest
