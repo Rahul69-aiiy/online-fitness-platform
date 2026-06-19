@@ -1,4 +1,4 @@
-# FitLive Backend Setup Guide
+# Backend Setup Guide
 
 ## Getting Started
 
