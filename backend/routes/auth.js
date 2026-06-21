@@ -14,7 +14,7 @@ import {
 
 const router = express.Router()
 
-router.post('/register', authLimiter, register)
+router.post('/register/:role', authLimiter, register)
 router.post('/login', authLimiter, login)
 router.post('/google', authLimiter, googleLogin)
 router.post('/logout', isAuthenticated, logout)

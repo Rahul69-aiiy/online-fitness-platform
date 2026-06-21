@@ -3,12 +3,13 @@ import createToken from "../utils/createToken.js"
 import prisma from "../config/db.js";
 import {getAuth} from "firebase-admin/auth"
 
-export const register = async (req, res) => {
+const studentRegister = async (req, res) => {
   try {
     const {name,  email, password } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({
+        success: false,
         message: "All fields are required",
       });
     }
@@ -16,10 +17,9 @@ export const register = async (req, res) => {
     const User = await prisma.user.findUnique({where: {email}});
 
     if(User) {
-      return res.status(400).json({message: "User already exists"})
+      return res.status(400).json({success: false, message: "User already exists"})
     }
 
-    const role = req.body.role?.toUpperCase() || "STUDENT";
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await prisma.user.create({
@@ -27,7 +27,7 @@ export const register = async (req, res) => {
         name, 
         email,
         password: hashedPassword,
-        role
+        role: "TRAINER",
       },
     });
 
@@ -40,15 +40,105 @@ export const register = async (req, res) => {
 
     delete newUser.password;
     const token = createToken(newUser)
-    res.status(200).cookie("token", token, options).json({message: "User registered successfully", user});
+    res.status(200).cookie("token", token, options).json({success: true, message: "User registered successfully", user});
 
   } catch (error) {
     console.log(error.message)
     res.status(500).json({
-      message: error.message,
+      success: false, message: error.message,
     });
   }
 };
+
+const trainerRegister = async(req, res) => {
+  try {
+    const {
+      name,
+      email,
+      password,
+      specialization,
+      experience = 0,
+      bio,
+      primaryLocation,
+      certifications,
+      categories,
+    } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required",
+      });
+    }
+
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "User already exists",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newUser = await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        role: "TRAINER",
+
+        trainerProfile: {
+          create: {
+            specialization,
+            experience,
+            bio,
+            primaryLocation,
+            certifications,
+            categories,
+          },
+        },
+      },
+      include: {
+        trainerProfile: true,
+      },
+    });
+
+    const { password: _, ...userWithoutPassword } = newUser;
+
+    const token = createToken(userWithoutPassword);
+
+    return res
+      .status(200)
+      .cookie("token", token, {
+        httpOnly: true,
+        sameSite: "Lax",
+      })
+      .json({
+        success: true,
+        message: "Trainer registered successfully",
+        user: userWithoutPassword,
+      });
+
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+}
+
+export const register = async(req, res) => {
+  const { role } = req.params;
+
+  if (role === "trainer") {
+    return trainerRegister(req, res);
+  }
+  return studentRegister(req, res);
+}
 
 export const login = async(req, res) => {
     try {
@@ -56,6 +146,7 @@ export const login = async(req, res) => {
 
       if (!name || !email || !password) {
         return res.status(400).json({
+          success: false, 
           message: "All fields are required",
         });
       }
@@ -65,13 +156,13 @@ export const login = async(req, res) => {
       })
 
       if(!User) {
-        return res.status(404).json({message: "User does not exist",})
+        return res.status(404).json({success: false, message: "User does not exist",})
       }
 
       const isPasswordCorrect = await bcrypt.compare(password, user.password)
 
       if(!isPasswordCorrect) {
-        return res.status(400).json({message: "Invalid credentials"});
+        return res.status(400).json({success: false, message: "Invalid credentials"});
       }
 
       const options = {
@@ -83,15 +174,15 @@ export const login = async(req, res) => {
       delete user.password;
       const token = createToken(user)
 
-      res.status(200).cookie("token", token, options).json({message: "Login successful", user});
+      res.status(200).cookie("token", token, options).json({success: true,message: "Login successful", user});
     } catch(error) {
       console.log(error.message)
-      res.status(500).json({ message: error.message})
+      res.status(500).json({success: false,  message: error.message})
     }
 }
 
 export const logout = async (req, res) => {
-  res.clearCookie("token").status(200).json({ message: "Logged out successfully" });
+  res.clearCookie("token").status(200).json({success: true, message: "Logged out successfully" });
 };
 
 export const googleLogin = async (req, res) => {
@@ -108,6 +199,7 @@ export const googleLogin = async (req, res) => {
 
     if(!User) {
       return res.status(400).json({
+        success: false, 
         message: "Please register first."
       });
     }
@@ -120,10 +212,10 @@ export const googleLogin = async (req, res) => {
     const { password, ...user } = User
     const token = createToken(user)
 
-    res.status(200).cookie("token", token, options).json({message: "Login successful", user});
+    res.status(200).cookie("token", token, options).json({success: true, message: "Login successful", user});
   } catch(error) {
     console.log(error.message)
-    res.status(500).json({ message: error.message})
+    res.status(500).json({success: false,  message: error.message})
   }
 }
 
