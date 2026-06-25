@@ -1,8 +1,11 @@
 import StudentDashboard from "../pages/dashboard/StudentDashboard"
 import TrainerDashboard from "../pages/dashboard/TrainerDashboard"
 import Checkout from "../pages/Checkout"
-import LiveSession from "../pages/LiveSession"
 import Settings from "../pages/Settings"
+import Messages from "../pages/Messages"
+import PaymentHistory from "../pages/PaymentHistory"
+import PaymentSuccess from "../pages/PaymentSuccess"
+import ManagePlans from "../pages/trainer/ManagePlans"
 
 const privateRoutes = [
     {
@@ -14,16 +17,32 @@ const privateRoutes = [
         element: <TrainerDashboard />
     },
     {
-        path: '/live/:id',
-        element: <LiveSession />
-    },
-    {
         path: '/checkout',
         element: <Checkout />
     },
     {
+        path: '/payment-history',
+        element: <PaymentHistory />
+    },
+    {
+        path: '/payment/success',
+        element: <PaymentSuccess />
+    },
+    {
+        path: '/trainer/manage-plans',
+        element: <ManagePlans />
+    },
+    {
         path: '/settings',
         element: <Settings />
+    },
+    {
+        path: '/messages',
+        element: <Messages role="student" />
+    },
+    {
+        path: '/trainer/messages',
+        element: <Messages role="trainer" />
     },
 ]
 

@@ -2,36 +2,51 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import { TRAINERS } from "@/mocks/mockData";
 import { CATEGORIES } from "../data/constants";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, Users, CheckCircle2, Search, Filter } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
+import useTrainersQuery from "@/hooks/useTrainersQuery";
 
 export default function TrainerDiscovery() {
   const [search, setSearch] = useState("");
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("category");
   const [selectedCategory, setSelectedCategory] = useState(query || "All");
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
-      if (selectedCategory === "All") {
-        setSearchParams({});
-      } else {
-        setSearchParams({ category: selectedCategory });
-      }
+    if (selectedCategory === "All") {
+      setSearchParams({});
+    } else {
+      setSearchParams({ category: selectedCategory });
+    }
+    setPage(1);
   }, [selectedCategory]);
 
-  const filteredTrainers = TRAINERS.filter((trainer) => {
-    const matchesSearch =
-      trainer.name.toLowerCase().includes(search.toLowerCase()) ||
-      trainer.specialization.toLowerCase().includes(search.toLowerCase());
-    const matchesCategory =
-      selectedCategory === "All" ||
-      trainer.categories.includes(selectedCategory);
-    return matchesSearch && matchesCategory;
-  });
+  // Debounce search input
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const { data, isLoading } = useTrainersQuery(
+    { search: debouncedSearch, category: selectedCategory },
+    page
+  );
+
+  const trainers = data?.data || [];
+  const pagination = data?.pagination;
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -63,8 +78,8 @@ export default function TrainerDiscovery() {
         {/* Categories Bar */}
         <div className="flex items-center gap-2 overflow-x-auto pb-4 mb-8 no-scrollbar">
           <Button variant="dummy" className="flex items-center gap-2">
-              <Filter className="w-4 h-4" />
-              Filters
+            <Filter className="w-4 h-4" />
+            Filters
           </Button>
           <Button
             variant={selectedCategory === "All" ? "default" : "outline"}
@@ -85,83 +100,114 @@ export default function TrainerDiscovery() {
           ))}
         </div>
 
-        {/* Trainers Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredTrainers.map((trainer) => (
-            <Card
-              key={trainer.id}
-              className="overflow-hidden border-border hover:border-primary transition-colors group"
-            >
-              <div className="aspect-square overflow-hidden relative">
-                <img
-                  src={trainer.photo}
-                  alt={trainer.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute top-2 right-2 bg-background/80 backdrop-blur-md px-2 py-1 rounded-md flex items-center gap-1 text-yellow-500">
-                  <Star className="w-3 h-3 fill-current" />
-                  <span className="text-xs font-bold">{trainer.rating}</span>
-                </div>
-              </div>
-              <CardContent className="p-4">
-                <h3 className="text-lg font-bold mb-1">{trainer.name}</h3>
-                <p className="text-xs text-primary font-medium mb-3">
-                  {trainer.specialization}
-                </p>
-
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Users className="w-3 h-3" />
-                    <span>{trainer.studentCount}+ Students</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <CheckCircle2 className="w-3 h-3" />
-                    <span>{trainer.experience} Experience</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between mt-auto">
-                  <p className="font-bold">
-                    ${trainer.monthlyPrice}
-                    <span className="text-[10px] font-normal text-muted-foreground">
-                      /mo
-                    </span>
-                  </p>
-                  <div className="flex gap-2">
-                    <Link to={`/trainer/${trainer.id}`}>
-                      <Button size="sm" variant="outline">
-                        Profile
-                      </Button>
-                    </Link>
-                    <Link to={`/checkout?trainer=${trainer.id}`}>
-                      <Button size="sm">Subscribe</Button>
-                    </Link>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {filteredTrainers.length === 0 && (
-          <div className="text-center py-24">
-            <p className="text-xl text-muted-foreground">
-              No trainers found matching your criteria.
-            </p>
-            <Button
-              variant="link"
-              onClick={() => {
-                setSearch("");
-                setSelectedCategory("All");
-              }}
-            >
-              Clear all filters
-            </Button>
+        {/* Loading skeleton */}
+        {isLoading && (
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div
+                key={i}
+                className="rounded-xl bg-card border border-border animate-pulse h-72"
+              />
+            ))}
           </div>
         )}
-      </main>
 
-      <Footer />
+        {/* Trainers Grid */}
+        {!isLoading && (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {trainers.map((trainer) => (
+                <Card
+                  key={trainer.id}
+                  className="overflow-hidden border-border hover:border-primary transition-colors group"
+                >
+                  <div className="aspect-square overflow-hidden relative">
+                    <img
+                      src={trainer.user?.avatar || trainer.photo || "/user.jpg"}
+                      alt={trainer.user?.name || trainer.name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    <div className="absolute top-2 right-2 bg-background/80 backdrop-blur-md px-2 py-1 rounded-md flex items-center gap-1 text-yellow-500">
+                      <Star className="w-3 h-3 fill-current" />
+                      <span className="text-xs font-bold">{trainer.rating?.toFixed(1)}</span>
+                    </div>
+                  </div>
+                  <CardContent className="p-4">
+                    <h3 className="text-lg font-bold mb-1">{trainer.user?.name || trainer.name}</h3>
+                    <p className="text-xs text-primary font-medium mb-3">
+                      {trainer.specialization}
+                    </p>
+
+                    <div className="space-y-2 mb-4">
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Users className="w-3 h-3" />
+                        <span>{trainer.studentCount}+ Students</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <CheckCircle2 className="w-3 h-3" />
+                        <span>{trainer.experience} yrs experience</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between mt-auto">
+                      <p className="font-bold">
+                        ₹{trainer.plans?.[0]?.price || "–"}
+                        <span className="text-[10px] font-normal text-muted-foreground">
+                          /mo
+                        </span>
+                      </p>
+                      <div className="flex gap-2">
+                        <Link to={`/trainer/${trainer.id}`}>
+                          <Button size="sm" variant="outline">
+                            Profile
+                          </Button>
+                        </Link>
+                        <Link to={`/checkout?trainer=${trainer.id}`}>
+                          <Button size="sm">Subscribe</Button>
+                        </Link>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {trainers.length === 0 && (
+              <div className="text-center py-24">
+                <p className="text-xl text-muted-foreground">
+                  No trainers found matching your criteria.
+                </p>
+                <Button
+                  variant="link"
+                  onClick={() => {
+                    setSearch("");
+                    setSelectedCategory("All");
+                  }}
+                >
+                  Clear all filters
+                </Button>
+              </div>
+            )}
+
+            {/* Pagination */}
+            {pagination && pagination.totalPages > 1 && (
+              <div className="flex justify-center gap-2 mt-10">
+                {Array.from({ length: pagination.totalPages }).map((_, i) => (
+                  <Button
+                    key={i}
+                    size="sm"
+                    variant={pagination.page === i + 1 ? "default" : "outline"}
+                    onClick={() => handlePageChange(i + 1)}
+                    className="w-9 h-9"
+                  >
+                    {i + 1}
+                  </Button>
+                ))}
+              </div>
+            )}
+          </>
+        )}
+      </main>
     </div>
   );
 }

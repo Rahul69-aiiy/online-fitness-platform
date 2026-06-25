@@ -1,44 +1,50 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Search,
-  Calendar,
-  Play,
   MessageSquare,
-  Bell,
   Settings,
   LogOut,
   Users,
   CreditCard,
   Menu,
   X,
+  Home,
+  PackagePlus,
 } from "lucide-react";
+
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
-import user from "@/assets/user.jpg";
+import useAuthStore from "@/store/useAuthStore";
+import NotificationBell from "@/components/ui/NotificationBell";
 
 export default function DashboardLayout({ children, role = "student" }) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const authUser = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
 
   // for mobile sidebar
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const handleLogout = async () => {
+    await logout();
+    navigate("/login");
+  };
+
   const studentNav = [
+    { name: "Home", icon: Home, href: "/" },
     { name: "Dashboard", icon: LayoutDashboard, href: "/dashboard" },
     { name: "Discover Trainers", icon: Search, href: "/trainers" },
-    { name: "My Subscriptions", icon: CreditCard, href: "/subscriptions" },
-    { name: "My Bookings", icon: Calendar, href: "/bookings" },
-    { name: "Live Sessions", icon: Play, href: "/live-sessions" },
+    { name: "Payment History", icon: CreditCard, href: "/payment-history" },
     { name: "Messages", icon: MessageSquare, href: "/messages" },
   ];
 
   const trainerNav = [
+    { name: "Home", icon: Home, href: "/" },
     { name: "Dashboard", icon: LayoutDashboard, href: "/trainer/dashboard" },
-    { name: "Schedule", icon: Calendar, href: "/trainer/schedule" },
-    { name: "Subscribers", icon: Users, href: "/trainer/subscribers" },
-    { name: "Sessions", icon: Play, href: "/trainer/sessions" },
+    { name: "Manage Plans", icon: CreditCard, href: "/trainer/manage-plans" },
     { name: "Messages", icon: MessageSquare, href: "/trainer/messages" },
   ];
 
@@ -51,10 +57,8 @@ export default function DashboardLayout({ children, role = "student" }) {
         {/* Logo */}
         <div className="p-4 border-b border-border flex items-center gap-2">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">F</span>
-            </div>
-            <span className="text-xl font-bold tracking-tight">FitLive</span>
+            <img src="/favicon.svg" alt="physiq logo" className="w-8 h-8" />
+            <span className="text-xl font-bold tracking-tight">PhysiQ</span>
           </Link>
         </div>
 
@@ -87,7 +91,10 @@ export default function DashboardLayout({ children, role = "student" }) {
             <span>Settings</span>
           </Link>
 
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-destructive hover:bg-destructive/10"
+          >
             <LogOut className="w-5 h-5" />
             <span>Logout</span>
           </button>
@@ -110,13 +117,10 @@ export default function DashboardLayout({ children, role = "student" }) {
           <div className="flex-1" />
 
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full" />
-            </Button>
+            <NotificationBell />
 
             <div className="w-8 h-8 rounded-full bg-secondary border border-border overflow-hidden">
-              <img src={user} alt="User" />
+              <img src={authUser?.avatar || "/user.jpg"} alt={authUser?.name || "User"} className="w-full h-full object-cover" />
             </div>
           </div>
         </header>
@@ -143,10 +147,8 @@ export default function DashboardLayout({ children, role = "student" }) {
             {/* Header */}
             <div className="p-6 border-b border-border flex items-center justify-between">
               <Link to="/" className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-xl">F</span>
-                </div>
-                <span className="text-xl font-bold">FitLive</span>
+                <img src="/favicon.svg" alt="physiq logo" className="w-8 h-8" />
+                <span className="text-xl font-bold">PhysiQ</span>
               </Link>
 
               <button onClick={() => setMobileMenuOpen(false)}>

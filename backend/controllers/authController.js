@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt"
 import createToken from "../utils/createToken.js"
 import prisma from "../config/db.js";
-import {getAuth} from "firebase-admin/auth"
+import { verifyFirebaseToken } from "../services/firebaseService.js";
 
 const studentRegister = async (req, res) => {
   try {
@@ -27,7 +27,7 @@ const studentRegister = async (req, res) => {
         name, 
         email,
         password: hashedPassword,
-        role: "TRAINER",
+        role: "STUDENT",
       },
     });
 
@@ -40,12 +40,13 @@ const studentRegister = async (req, res) => {
 
     delete newUser.password;
     const token = createToken(newUser)
-    res.status(200).cookie("token", token, options).json({success: true, message: "User registered successfully", user});
+    res.status(200).cookie("token", token, options).json({success: true, message: "User registered successfully", user: newUser});
 
   } catch (error) {
-    console.log(error.message)
+    console.error("Student registration error:", error);
     res.status(500).json({
-      success: false, message: error.message,
+      success: false,
+      message: "An unexpected error occurred. Please try again later.",
     });
   }
 };
@@ -124,9 +125,10 @@ const trainerRegister = async(req, res) => {
       });
 
   } catch (error) {
+    console.error("Trainer registration error:", error);
     return res.status(500).json({
       success: false,
-      message: error.message,
+      message: "An unexpected error occurred. Please try again later.",
     });
   }
 }
@@ -142,9 +144,9 @@ export const register = async(req, res) => {
 
 export const login = async(req, res) => {
     try {
-      const {name, email, password} = req.body;
+      const {email, password} = req.body;
 
-      if (!name || !email || !password) {
+      if (!email || !password) {
         return res.status(400).json({
           success: false, 
           message: "All fields are required",
@@ -159,7 +161,7 @@ export const login = async(req, res) => {
         return res.status(404).json({success: false, message: "User does not exist",})
       }
 
-      const isPasswordCorrect = await bcrypt.compare(password, user.password)
+      const isPasswordCorrect = await bcrypt.compare(password, User.password)
 
       if(!isPasswordCorrect) {
         return res.status(400).json({success: false, message: "Invalid credentials"});
@@ -171,15 +173,19 @@ export const login = async(req, res) => {
         sameSite: "Lax",
       };
       
-      delete user.password;
-      const token = createToken(user)
+      delete User.password;
+      const token = createToken(User)
 
-      res.status(200).cookie("token", token, options).json({success: true,message: "Login successful", user});
+      res.status(200).cookie("token", token, options).json({success: true,message: "Login successful", user: User});
     } catch(error) {
-      console.log(error.message)
-      res.status(500).json({success: false,  message: error.message})
+      console.error("Login error:", error);
+      res.status(500).json({
+        success: false,
+        message: "An unexpected error occurred. Please try again later."
+      });
     }
 }
+
 
 export const logout = async (req, res) => {
   res.clearCookie("token").status(200).json({success: true, message: "Logged out successfully" });
@@ -189,7 +195,7 @@ export const googleLogin = async (req, res) => {
   try {
     const { firebaseToken } = req.body;
 
-    const decoded = await getAuth().verifyIdToken(firebaseToken);
+    const decoded = await verifyFirebaseToken(firebaseToken);
 
     const email = decoded.email;
 
@@ -214,8 +220,11 @@ export const googleLogin = async (req, res) => {
 
     res.status(200).cookie("token", token, options).json({success: true, message: "Login successful", user});
   } catch(error) {
-    console.log(error.message)
-    res.status(500).json({success: false,  message: error.message})
+    console.error("Google login error:", error);
+    res.status(500).json({
+      success: false,
+      message: "An unexpected error occurred. Please try again later."
+    });
   }
 }
 

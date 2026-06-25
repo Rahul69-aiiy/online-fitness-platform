@@ -1,4 +1,5 @@
 import prisma from "../config/db.js";
+import { uploadToCloudinary } from "../services/cloudinaryService.js";
 
 // Get All Trainers with Pagination & Filters
 export const getTrainers = async (req, res) => {
@@ -59,7 +60,6 @@ export const getTrainerById = async (req, res) => {
       include: {
         user: true,
         plans: true,
-        sessions: { where: { time: { gte: new Date() } }, orderBy: { time: 'asc' } },
         reviews: { include: { user: true } }
       }
     });
@@ -80,15 +80,45 @@ export const updateTrainerProfile = async (req, res) => {
   try {
     const { name, avatar, specialization, experience, bio, primaryLocation, certifications, categories } = req.body;
 
-    let profile = await prisma.trainerProfile.update({
+    let avatarUrl = avatar;
+    if (avatar && avatar.startsWith("data:image/")) {
+      try {
+        const uploadResponse = await uploadToCloudinary(avatar, {
+          folder: "fitness-app/avatars",
+        });
+        avatarUrl = uploadResponse.secure_url;
+      } catch (uploadError) {
+        console.error("Cloudinary trainer upload error:", uploadError);
+        return res.status(500).json({ success: false, message: "Failed to upload avatar" });
+      }
+    }
+
+    // First update the user if name or avatar are provided
+    if (name || avatar) {
+      await prisma.user.update({
+        where: { id: req.user.id },
+        data: {
+          name: name || undefined,
+          avatar: avatarUrl || undefined,
+        },
+      });
+    }
+    const profile = await prisma.trainerProfile.update({
         where: { userId: req.user.id },
-        data: { specialization, experience: parseInt(experience), bio, primaryLocation, certifications, categories },
+        data: { 
+          specialization: specialization || undefined, 
+          experience: parseInt(experience), 
+          bio: bio || undefined, 
+          primaryLocation: primaryLocation || undefined, 
+          certifications: certifications || undefined, 
+          categories: categories || undefined 
+        },
         include: { 
             user: {
                 omit : {password: true}
             }
         },
-    })
+    });
 
     res.json({ success: true, data: profile });
   } catch (error) {

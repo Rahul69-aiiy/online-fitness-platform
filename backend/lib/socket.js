@@ -28,12 +28,33 @@ export default function setupSocket(server) {
     // Send message
     socket.on('sendMessage', async (data) => {
       try {
+        const { senderId, receiverId, content } = data;
+
+        // Check active subscription
+        const subscription = await prisma.subscription.findFirst({
+          where: {
+            OR: [
+              { studentId: senderId, trainer: { userId: receiverId } },
+              { studentId: receiverId, trainer: { userId: senderId } },
+            ],
+            isActive: true,
+            endDate: {
+              gt: new Date(),
+            },
+          },
+        });
+
+        if (!subscription) {
+          socket.emit('error', { message: 'You must have an active subscription to send messages' });
+          return;
+        }
+
         // Save message to DB
         const message = await prisma.message.create({
           data: {
-            senderId: data.senderId,
-            receiverId: data.receiverId,
-            content: data.content
+            senderId,
+            receiverId,
+            content
           },
           include: { sender: true, receiver: true }
         });
@@ -49,20 +70,6 @@ export default function setupSocket(server) {
       } catch (error) {
         console.error('Socket send message error:', error);
       }
-    });
-
-    // Live streaming signaling
-    socket.on('joinStream', (streamId) => {
-      socket.join(`stream-${streamId}`);
-      console.log(`Client ${socket.id} joined stream ${streamId}`);
-    });
-
-    socket.on('leaveStream', (streamId) => {
-      socket.leave(`stream-${streamId}`);
-    });
-
-    socket.on('streamSignal', (data) => {
-      socket.to(`stream-${data.streamId}`).emit('streamSignal', data);
     });
 
     // User disconnects

@@ -5,13 +5,23 @@ import prisma from "../config/db.js";
 export const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
-  message: "Too many requests from this IP, please try again later.",
+  handler: (req, res) => {
+    res.status(429).json({
+      success: false,
+      message: "Too many requests from this IP, please try again later.",
+    });
+  },
 });
 
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
-  message: "Too many login attempts from this IP.",
+  handler: (req, res) => {
+    res.status(429).json({
+      success: false,
+      message: "Too many login attempts from this IP, please try again later.",
+    });
+  },
 });
 
 export const isAuthenticated = async (req, res, next) => {
@@ -27,9 +37,11 @@ export const isAuthenticated = async (req, res, next) => {
       where: {
         id: decoded.id,
       },
+      include: {
+        trainerProfile: true,
+      },
       omit: {
         password: true, 
-        firebaseUid: true    
       },
     });
 

@@ -3,7 +3,6 @@ import Login from '../pages/auth/Login'
 import Register from '../pages/auth/Register'
 import TrainerDiscovery from '../pages/TrainerDiscovery'
 import TrainerProfile from '../pages/TrainerProfile'
-import SessionDetails from '../pages/SessionDetails'
 
 const publicRoutes = [
     {
@@ -25,10 +24,6 @@ const publicRoutes = [
     {
         path: '/trainer/:id',
         element: <TrainerProfile />
-    },
-    {
-        path: '/session/:id',
-        element: <SessionDetails />
     },
 ]
 

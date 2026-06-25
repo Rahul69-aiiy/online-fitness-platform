@@ -3,8 +3,8 @@ import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { TRAINERS} from "@/mocks/mockData";
 import { CATEGORIES } from "@/data/constants";
+import useTrainersQuery from "@/hooks/useTrainersQuery";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, Users, CheckCircle2 } from "lucide-react";
 import { useEffect } from "react";
@@ -13,6 +13,8 @@ import hero from "@/assets/hero.jpg"
 export default function LandingPage() {
 
   const location = useLocation();
+  const { data, isLoading } = useTrainersQuery();
+  const trainers = data?.data?.slice(0, 3) || [];
 
   useEffect(() => {
     if (location.pathname === "/" && location.hash) {
@@ -82,51 +84,62 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {TRAINERS.map((trainer, index) => (
-              <motion.div
-                key={trainer.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                viewport={{ once: true }}
-              >
-                <Card className="overflow-hidden border-border hover:border-primary transition-colors group">
-                  <div className="aspect-square overflow-hidden">
-                    <img 
-                      src={trainer.photo} 
-                      alt={trainer.name} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="text-xl font-bold">{trainer.name}</h3>
-                      <div className="flex items-center gap-1 text-yellow-500">
-                        <Star className="w-4 h-4 fill-current" />
-                        <span className="text-sm font-bold">{trainer.rating}</span>
+            {isLoading ? (
+              Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="aspect-square bg-card border border-border animate-pulse rounded-2xl h-80" />
+              ))
+            ) : (
+              trainers.map((trainer, index) => {
+                const trainerName = trainer.user?.name || trainer.name;
+                const trainerAvatar = trainer.user?.avatar || "/user.jpg";
+                const trainerPrice = trainer.plans?.[0]?.price || "–";
+                return (
+                  <motion.div
+                    key={trainer.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    viewport={{ once: true }}
+                  >
+                    <Card className="overflow-hidden border-border hover:border-primary transition-colors group">
+                      <div className="aspect-square overflow-hidden">
+                        <img 
+                          src={trainerAvatar} 
+                          alt={trainerName} 
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
                       </div>
-                    </div>
-                    <p className="text-sm text-primary font-medium mb-4">{trainer.specialization}</p>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-6">
-                      <div className="flex items-center gap-1">
-                        <Users className="w-4 h-4" />
-                        <span>{trainer.studentCount}+ Students</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <CheckCircle2 className="w-4 h-4" />
-                        <span>{trainer.experience} Exp</span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <p className="text-lg font-bold">${trainer.monthlyPrice}<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
-                      <Link to={`/trainer/${trainer.id}`}>
-                        <Button size="sm">View Profile</Button>
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
+                      <CardContent className="p-6">
+                        <div className="flex items-center justify-between mb-2">
+                          <h3 className="text-xl font-bold">{trainerName}</h3>
+                          <div className="flex items-center gap-1 text-yellow-500">
+                            <Star className="w-4 h-4 fill-current" />
+                            <span className="text-sm font-bold">{trainer.rating?.toFixed(1) || "5.0"}</span>
+                          </div>
+                        </div>
+                        <p className="text-sm text-primary font-medium mb-4">{trainer.specialization}</p>
+                        <div className="flex items-center gap-4 text-sm text-muted-foreground mb-6">
+                          <div className="flex items-center gap-1">
+                            <Users className="w-4 h-4" />
+                            <span>{trainer.studentCount}+ Students</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <CheckCircle2 className="w-4 h-4" />
+                            <span>{trainer.experience} yrs Exp</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <p className="text-lg font-bold">₹{Number(trainerPrice).toLocaleString("en-IN")}<span className="text-sm font-normal text-muted-foreground">/mo</span></p>
+                          <Link to={`/trainer/${trainer.id}`}>
+                            <Button size="sm">View Profile</Button>
+                          </Link>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                );
+              })
+            )}
           </div>
         </div>
       </section>

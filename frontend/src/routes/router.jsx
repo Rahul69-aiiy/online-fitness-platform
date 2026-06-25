@@ -1,5 +1,5 @@
-import privateRoutes from "./PrivateRoutes";
-import publicRoutes from "./PublicRoutes";
+import privateRoutes from "./privateRoutes";
+import publicRoutes from "./publicRoutes";
 import { Navigate, Route, Routes} from "react-router-dom";
 // import NotFound from "../components/ui/NotFound";
 

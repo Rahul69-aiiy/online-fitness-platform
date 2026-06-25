@@ -46,3 +46,87 @@ export const getReviewsByTrainer = async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
+
+// Update a Review
+export const updateReview = async (req, res) => {
+  try {
+    const reviewId = req.params.id;
+    const { rating, comment } = req.body;
+
+    // Check if review exists and belongs to current user
+    const existingReview = await prisma.review.findUnique({
+      where: { id: reviewId }
+    });
+
+    if (!existingReview) {
+      return res.status(404).json({ success: false, message: 'Review not found' });
+    }
+
+    if (existingReview.userId !== req.user.id) {
+      return res.status(403).json({ success: false, message: 'You do not have permission to update this review' });
+    }
+
+    const updatedReview = await prisma.review.update({
+      where: { id: reviewId },
+      data: {
+        rating: rating ? parseInt(rating) : undefined,
+        comment: comment || undefined
+      },
+      include: { user: true }
+    });
+
+    // Recalculate trainer rating
+    const reviews = await prisma.review.findMany({ where: { trainerId: updatedReview.trainerId } });
+    const avgRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+    
+    await prisma.trainerProfile.update({
+      where: { id: updatedReview.trainerId },
+      data: { rating: avgRating }
+    });
+
+    res.json({ success: true, data: updatedReview });
+  } catch (error) {
+    console.error('Update review error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// Delete a Review
+export const deleteReview = async (req, res) => {
+  try {
+    const reviewId = req.params.id;
+
+    // Check if review exists and belongs to current user
+    const existingReview = await prisma.review.findUnique({
+      where: { id: reviewId }
+    });
+
+    if (!existingReview) {
+      return res.status(404).json({ success: false, message: 'Review not found' });
+    }
+
+    if (existingReview.userId !== req.user.id) {
+      return res.status(403).json({ success: false, message: 'You do not have permission to delete this review' });
+    }
+
+    const trainerId = existingReview.trainerId;
+
+    await prisma.review.delete({
+      where: { id: reviewId }
+    });
+
+    // Recalculate trainer rating
+    const reviews = await prisma.review.findMany({ where: { trainerId } });
+    const avgRating = reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
+    
+    await prisma.trainerProfile.update({
+      where: { id: trainerId },
+      data: { rating: avgRating }
+    });
+
+    res.json({ success: true, message: 'Review deleted successfully' });
+  } catch (error) {
+    console.error('Delete review error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};

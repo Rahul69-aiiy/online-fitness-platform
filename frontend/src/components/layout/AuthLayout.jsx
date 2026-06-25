@@ -10,10 +10,8 @@ export default function AuthLayout({ children, title, description, image }) {
         <div className="w-full max-w-md space-y-8">
           <div className="text-center md:text-left">
             <Link to="/" className="inline-flex items-center gap-2 mb-8">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-2xl">F</span>
-              </div>
-              <span className="text-2xl font-bold tracking-tight">FitLive</span>
+              <img src="/favicon.svg" alt="physiq logo" className="w-10 h-10" />
+              <span className="text-2xl font-bold tracking-tight">PhysiQ</span>
             </Link>
             <h1 className="text-3xl font-bold tracking-tight">{title}</h1>
             <p className="text-muted-foreground mt-2">{description}</p>
@@ -41,7 +39,7 @@ export default function AuthLayout({ children, title, description, image }) {
           <blockquote className="text-2xl font-bold italic">
             "The only bad workout is the one that didn't happen."
           </blockquote>
-          <p className="mt-4 text-lg">— Physiq Community</p>
+          <p className="mt-4 text-lg">— PhysiQ Community</p>
         </div>
       </div>
     </div>

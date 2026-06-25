@@ -42,10 +42,19 @@ app.use(routes)
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  const { statusCode = 500} = err;
-  if(!err.message) err.message = 'Oh No, Something Went Wrong!'
-  res.status(statusCode).send(err.message);
-})
+  const statusCode = err.statusCode || 500;
+  let message = err.message || 'Oh No, Something Went Wrong!';
+
+  if (statusCode === 500 || err.name?.includes("Prisma") || err.message?.toLowerCase().includes("prisma")) {
+    console.error("Unhandled Server Error:", err);
+    message = "Something went wrong. Please try again later.";
+  }
+
+  res.status(statusCode).json({
+    success: false,
+    message,
+  });
+});
 
 server.listen(PORT, () => {
   console.log(`app listening on port ${PORT}`)

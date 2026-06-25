@@ -1,13 +1,11 @@
 import pic1 from "@/assets/pic1.webp";
 import pic2 from "@/assets/pic2.jpg";
 import pic3 from "@/assets/pic3.webp";
-import hero from "@/assets/hero.jpg"
-import session from "@/assets/session.jpg"
 
 export const TRAINERS = [
   {
     id: "1",
-    name: "Alex Rivers",
+    name: "Aarav Sharma",
     specialization: "Strength & Conditioning",
     experience: "8 years",
     rating: 4.9,
@@ -24,7 +22,7 @@ export const TRAINERS = [
   },
   {
     id: "2",
-    name: "Sarah Chen",
+    name: "Priya Patel",
     specialization: "Yoga & Mindfulness",
     experience: "10 years",
     rating: 5.0,
@@ -41,7 +39,7 @@ export const TRAINERS = [
   },
   {
     id: "3",
-    name: "Marcus Thorne",
+    name: "Vikram Malhotra",
     specialization: "HIIT & Weight Loss",
     experience: "6 years",
     rating: 4.8,
@@ -58,52 +56,19 @@ export const TRAINERS = [
   }
 ];
 
-export const SESSIONS = [
-  {
-    id: "s1",
-    trainerId: "1",
-    title: "Morning Power Lift",
-    description: "A high-intensity compound movement session focusing on squats, deadlifts, and bench press.",
-    date: "2026-06-05",
-    time: "07:00 AM",
-    duration: "60 min",
-    capacity: 5,
-    bookedCount: 3,
-    price: 25,
-    type: "In Person",
-    location: "Iron Gym, New York",
-    image: hero
-  },
-  {
-    id: "s2",
-    trainerId: "2",
-    title: "Sunset Vinyasa Flow",
-    description: "A calming yet challenging yoga flow to end your day with balance and strength.",
-    date: "2026-06-05",
-    time: "06:00 PM",
-    duration: "75 min",
-    capacity: 20,
-    bookedCount: 12,
-    price: 15,
-    type: "Online",
-    location: "Zoom",
-    image: session
-  }
-];
-
 export const REVIEWS = [
   {
     id: "r1",
     trainerId: "1",
-    userName: "John Doe",
+    userName: "Rohan Das",
     rating: 5,
-    comment: "Alex is an amazing coach! My deadlift went up by 50lbs in 3 months.",
+    comment: "Aarav is an amazing coach! My deadlift went up by 50lbs in 3 months.",
     date: "2026-05-20"
   },
   {
     id: "r2",
     trainerId: "2",
-    userName: "Emily Smith",
+    userName: "Anjali Gupta",
     rating: 5,
     comment: "The most relaxing and professional yoga sessions I've ever had.",
     date: "2026-05-25"

@@ -1,13 +1,13 @@
-import express from "router"
-import { authorizeRoles, isAuthenticated } from "../middlewares/middleware"
-import { getTrainerById, getTrainers, updateTrainerProfile } from '../controllers/trainerController'
+import { Router } from 'express'
+import { authorizeRoles, isAuthenticated } from "../middlewares/middleware.js"
+import { getTrainerById, getTrainers, updateTrainerProfile } from '../controllers/trainerController.js'
 
-const router = express.router()
+const router = Router()
 // Public routes
-router.post('/', getTrainers)
+router.get('/', getTrainers)
 
 // Protected routes
-router.post('/:id', getTrainerById)
+router.get('/:id', getTrainerById)
 router.put('/profile', isAuthenticated, authorizeRoles('TRAINER'), updateTrainerProfile)
 
 export default router

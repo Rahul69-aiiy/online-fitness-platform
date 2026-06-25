@@ -21,10 +21,6 @@ enum Role {
   TRAINER
 }
 
-enum SessionType {
-  ONLINE
-  IN_PERSON
-}
 
 enum PaymentStatus {
   PENDING
@@ -58,7 +54,6 @@ model User {
   trainerProfile   TrainerProfile?
 
   subscriptions    Subscription[] @relation("StudentSubscriptions")
-  sessionEnrollments SessionEnrollment[]
   sentMessages     Message[] @relation("SentMessages")
   receivedMessages Message[] @relation("ReceivedMessages")
 
@@ -89,7 +84,6 @@ model TrainerProfile {
 
   plans             SubscriptionPlan[]
   subscriptions     Subscription[] @relation("TrainerSubscriptions")
-  sessions          Session[]
   reviews           Review[]
 }
 
@@ -139,45 +133,6 @@ model Subscription {
   @@unique([studentId, trainerId])
 }
 
-model Session {
-  id              String   @id @default(uuid())
-
-  trainerId       String
-  trainer         TrainerProfile @relation(fields: [trainerId], references: [id], onDelete: Cascade)
-
-  title           String
-  description     String   @db.Text
-
-  time            DateTime
-  duration        Int
-
-  type            SessionType
-
-  location        String // phy or meet
-
-  enrollments   SessionEnrollment[]
-
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  @@index([trainerId])
-  @@index([time])
-}
-
-model SessionEnrollment {
-  id            String @id @default(uuid())
-
-  sessionId     String
-  studentId     String
-
-  session       Session @relation(fields:[sessionId], references:[id], onDelete:Cascade)
-  student       User @relation(fields:[studentId], references:[id], onDelete:Cascade)
-
-  enrolledAt    DateTime @default(now())
-
-  @@unique([sessionId, studentId])
-}
-
 model Message {
   id              String   @id @default(uuid())
 
@@ -188,6 +143,8 @@ model Message {
   receiver        User @relation("ReceivedMessages", fields: [receiverId], references: [id], onDelete: Cascade)
 
   content         String   @db.Text
+
+  isRead          Boolean  @default(false)
 
   sentAt          DateTime @default(now())
 

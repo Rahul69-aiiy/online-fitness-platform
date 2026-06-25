@@ -16,7 +16,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CATEGORIES } from "@/data/constants";
 import auth2 from "@/assets/auth2.jpg"
-import axios from "axios";
+import api from "@/lib/api.js";
+import useToastStore from "@/store/useToastStore";
 
 const trainerSchema = z.object({
   name: z.string().trim().min(3, "Name must be at least 3 characters"),
@@ -63,6 +64,7 @@ const trainerSchema = z.object({
 });
 
 export default function TrainerRegister({ role, setRole }) {
+  const toast = useToastStore((s) => s.toast);
   const [currentStep, setCurrentStep] = useState(1);
   const {
         register,
@@ -147,16 +149,13 @@ export default function TrainerRegister({ role, setRole }) {
     };
 
     try {
-      await axios.post(
-        "http://localhost:5000/api/auth/register/trainer",
-        finalData,
-        {
-          withCredentials: true,
-        }
+      await api.post(
+        "/auth/register/trainer",
+        finalData
       );
       navigate("/trainer/dashboard");
     } catch (error) {
-      console.error(error);
+      toast.error(error.response?.data?.message || "Failed to register trainer");
     }
   };
 

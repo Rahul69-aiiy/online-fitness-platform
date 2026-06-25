@@ -7,10 +7,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-xl">F</span>
-              </div>
-              <span className="text-xl font-bold tracking-tight">FitLive</span>
+              <img src="/favicon.svg" alt="physiq logo" className="w-8 h-8" />
+              <span className="text-xl font-bold tracking-tight">PhysiQ</span>
             </Link>
             <p className="text-sm text-muted-foreground">
               The ultimate marketplace for elite fitness trainers and students.
@@ -45,7 +43,7 @@ export default function Footer() {
         </div>
         
         <div className="mt-12 pt-8 border-t border-border text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} FitLive. All rights reserved.
+          © {new Date().getFullYear()} PhysiQ. All rights reserved.
         </div>
       </div>
     </footer>

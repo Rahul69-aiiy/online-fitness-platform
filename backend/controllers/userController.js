@@ -1,15 +1,29 @@
 import prisma from "../config/db.js";
+import { uploadToCloudinary } from "../services/cloudinaryService.js";
 
 // Update current user's profile
 export const updateCurrentUser = async (req, res) => {
   try {
     const { name, avatar } = req.body;
 
+    let avatarUrl = avatar;
+    if (avatar && avatar.startsWith("data:image/")) {
+      try {
+        const uploadResponse = await uploadToCloudinary(avatar, {
+          folder: "fitness-app/avatars",
+        });
+        avatarUrl = uploadResponse.secure_url;
+      } catch (uploadError) {
+        console.error("Cloudinary upload error:", uploadError);
+        return res.status(500).json({ success: false, message: "Failed to upload avatar" });
+      }
+    }
+
     const user = await prisma.user.update({
       where: { id: req.user.id },
       data: {
         name: name || undefined,
-        avatar: avatar || undefined,
+        avatar: avatarUrl || undefined,
       },
       include: { trainerProfile: true },
       omit: { password: true},

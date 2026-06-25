@@ -6,13 +6,13 @@ import googleIcon from "@/assets/google.svg"
 import { useNavigate } from "react-router-dom";
 import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod"
-import axios from "axios";
-
 import { auth } from "@/lib/firebase.js";
 import {
   GoogleAuthProvider,
   signInWithPopup,
 } from "firebase/auth";
+import useAuthStore from "@/store/useAuthStore";
+import useToastStore from "@/store/useToastStore";
 
 const loginSchema = z.object({
   email: z
@@ -34,41 +34,33 @@ const loginSchema = z.object({
 export default function Login() {
 
   const { register, handleSubmit, formState: {errors} } = useForm({ resolver: zodResolver(loginSchema),});
-
   const navigate = useNavigate();
+  const login = useAuthStore((s) => s.login);
+  const googleLogin = useAuthStore((s) => s.googleLogin);
+  const toast = useToastStore((s) => s.toast);
 
-  const onSubmit = (data) => {
-    console.log(data)
-    // Simulate login
-    navigate("/dashboard");
+  const onSubmit = async (data) => {
+    try {
+      const result = await login({ email: data.email, password: data.password });
+      if (result?.success) {
+        navigate("/dashboard");
+      } else {
+        toast.error(result?.message || "Login failed");
+      }
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Login failed");
+    }
   };
 
-  const googleLogin = async () => {
+  const handleGoogleLogin = async () => {
     try {
       const provider = new GoogleAuthProvider();
-
-      const result = await signInWithPopup(
-        auth,
-        provider
-      );
-
-      const token =
-        await result.user.getIdToken();
-
-      await axios.post(
-        "http://localhost:5000/api/auth/google",
-        {
-          firebaseToken: token,
-        },
-        {
-          withCredentials: true,
-        }
-      );
-
+      const result = await signInWithPopup(auth, provider);
+      const token = await result.user.getIdToken();
+      await googleLogin(token);
       navigate("/dashboard");
-
     } catch (error) {
-      console.log(error);
+      toast.error(error?.response?.data?.message || "Google login failed");
     }
   };
 
@@ -126,7 +118,7 @@ export default function Login() {
             variant="outline"
             type="button"
             className="w-full py-6 bg-white/5 border-white/10 text-white hover:bg-white/10 flex items-center justify-center"
-            onClick={googleLogin}
+            onClick={handleGoogleLogin}
           >
             <img src={googleIcon} alt="Google" className="w-5 h-5 mr-2" />
             Sign In with Google
