@@ -32,7 +32,7 @@ export const getConversations = async (req, res) => {
           unreadCount: 0,
         });
       }
-      // Count messages FROM other user that are unread (approximation: no isRead field yet)
+      // Count messages FROM other user that are unread (no isRead field yet)
       if (msg.receiverId === userId && !msg.isRead) {
         const existing = conversationMap.get(otherId);
         if (existing) existing.unreadCount += 1;

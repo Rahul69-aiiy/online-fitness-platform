@@ -7,7 +7,7 @@ const onlineUsers = new Map(); // userId -> socketId
 export default function setupSocket(server) {
   const io = new Server(server, {
     cors: {
-      origin: ['http://localhost:5173', 'http://localhost:5174'],
+      origin: [process.env.CLIENT_URL],
       credentials: true
     }
   });
