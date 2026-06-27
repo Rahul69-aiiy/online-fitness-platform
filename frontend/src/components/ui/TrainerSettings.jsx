@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import userImg from "@/assets/user.jpg";
 import api from "@/lib/api";
 import useAuthStore from "@/store/useAuthStore";
 import useToastStore from "@/store/useToastStore";
@@ -89,8 +88,7 @@ export default function TrainerSettings() {
       }
     } catch (error) {
       console.error(error);
-      const errMsg = error.response?.data?.message || "Failed to update profile";
-      toast.error(errMsg);
+      toast.error(error.message || "Failed to update profile");
     } finally {
       setIsSaving(false);
     }
@@ -103,8 +101,7 @@ export default function TrainerSettings() {
       window.location.href = "/login";
     } catch (error) {
       console.error(error);
-      const errMsg = error.response?.data?.message || "Failed to delete account";
-      toast.error(errMsg);
+      toast.error(error.message || "Failed to delete account");
     }
   };
 
@@ -142,7 +139,7 @@ export default function TrainerSettings() {
               
               <div className="flex items-center gap-4">
                 <div className="w-16 h-16 rounded-full bg-secondary overflow-hidden flex items-center justify-center shrink-0">
-                  <img src={avatar || userImg} alt="Avatar" className="w-full h-full object-cover" />
+                  <img src={avatar || "/user.jpg"} alt="Avatar" className="w-full h-full object-cover" />
                 </div>
                 <input
                   type="file"

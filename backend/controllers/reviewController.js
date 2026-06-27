@@ -1,4 +1,5 @@
 import prisma from '../config/db.js';
+import ExpressError from '../utils/ExpressError.js';
 
 // Create a Review
 export const createReview = async (req, res) => {
@@ -27,7 +28,7 @@ export const createReview = async (req, res) => {
     res.status(201).json({ success: true, data: review });
   } catch (error) {
     console.error('Create review error:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    res.status(500).json({ success: false, message: 'An unexpected error occurred. Please try again later.' });
   }
 };
 
@@ -43,12 +44,12 @@ export const getReviewsByTrainer = async (req, res) => {
     res.json({ success: true, data: reviews });
   } catch (error) {
     console.error('Get reviews error:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    res.status(500).json({ success: false, message: 'An unexpected error occurred. Please try again later.' });
   }
 };
 
 // Update a Review
-export const updateReview = async (req, res) => {
+export const updateReview = async (req, res, next) => {
   try {
     const reviewId = req.params.id;
     const { rating, comment } = req.body;
@@ -59,11 +60,11 @@ export const updateReview = async (req, res) => {
     });
 
     if (!existingReview) {
-      return res.status(404).json({ success: false, message: 'Review not found' });
+      return next(new ExpressError('Review not found', 404));
     }
 
     if (existingReview.userId !== req.user.id) {
-      return res.status(403).json({ success: false, message: 'You do not have permission to update this review' });
+      return next(new ExpressError('You do not have permission to update this review', 403));
     }
 
     const updatedReview = await prisma.review.update({
@@ -87,12 +88,12 @@ export const updateReview = async (req, res) => {
     res.json({ success: true, data: updatedReview });
   } catch (error) {
     console.error('Update review error:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    res.status(500).json({ success: false, message: 'An unexpected error occurred. Please try again later.' });
   }
 };
 
 // Delete a Review
-export const deleteReview = async (req, res) => {
+export const deleteReview = async (req, res, next) => {
   try {
     const reviewId = req.params.id;
 
@@ -102,11 +103,11 @@ export const deleteReview = async (req, res) => {
     });
 
     if (!existingReview) {
-      return res.status(404).json({ success: false, message: 'Review not found' });
+      return next(new ExpressError('Review not found', 404));
     }
 
     if (existingReview.userId !== req.user.id) {
-      return res.status(403).json({ success: false, message: 'You do not have permission to delete this review' });
+      return next(new ExpressError('You do not have permission to delete this review', 403));
     }
 
     const trainerId = existingReview.trainerId;
@@ -127,6 +128,6 @@ export const deleteReview = async (req, res) => {
     res.json({ success: true, message: 'Review deleted successfully' });
   } catch (error) {
     console.error('Delete review error:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    res.status(500).json({ success: false, message: 'An unexpected error occurred. Please try again later.' });
   }
 };

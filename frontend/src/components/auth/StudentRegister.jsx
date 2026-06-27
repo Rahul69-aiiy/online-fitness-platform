@@ -5,7 +5,7 @@ import { User, Dumbbell } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {z} from "zod";
 import { useForm } from "react-hook-form";
-import auth2 from "@/assets/auth2.jpg"
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import api from "@/lib/api.js";
 import useToastStore from "@/store/useToastStore";
@@ -50,7 +50,7 @@ export default function StudentRegister({role, setRole}) {
 
     role === "trainer" ? navigate("/trainer/dashboard") : navigate("/dashboard");
   } catch (error) {
-    toast.error(error.response?.data?.message || "Failed to register student");
+    toast.error(error.message || "Failed to register student");
   }
   
   };
@@ -59,7 +59,7 @@ export default function StudentRegister({role, setRole}) {
     <AuthLayout
       title="Create an account"
       description="Join our fitness community today"
-      image={auth2}
+      image="/auth2.jpg"
     >
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
         <div className="grid grid-cols-2 gap-4 mb-6">

@@ -8,7 +8,6 @@ import useTrainersQuery from "@/hooks/useTrainersQuery";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, Users, CheckCircle2 } from "lucide-react";
 import { useEffect } from "react";
-import hero from "@/assets/hero.jpg"
 
 export default function LandingPage() {
 
@@ -35,7 +34,7 @@ export default function LandingPage() {
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img 
-            src={hero} 
+            src="/hero.jpg" 
             alt="Gym" 
             className="w-full h-full object-cover opacity-30"
           />

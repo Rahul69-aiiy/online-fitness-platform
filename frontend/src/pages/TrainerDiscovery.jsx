@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import Navbar from "@/components/layout/Navbar";
 import { CATEGORIES } from "../data/constants";
 import { Card, CardContent } from "@/components/ui/card";
-import { Star, Users, CheckCircle2, Search, Filter } from "lucide-react";
+import { Star, Users, CheckCircle2, Search, Filter, ChevronLeft, ChevronRight } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import useTrainersQuery from "@/hooks/useTrainersQuery";
 
@@ -14,6 +14,7 @@ export default function TrainerDiscovery() {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("category");
   const [selectedCategory, setSelectedCategory] = useState(query || "All");
+  const [rating, setRating] = useState("");
   const [page, setPage] = useState(1);
 
   useEffect(() => {
@@ -35,7 +36,7 @@ export default function TrainerDiscovery() {
   }, [search]);
 
   const { data, isLoading } = useTrainersQuery(
-    { search: debouncedSearch, category: selectedCategory },
+    { search: debouncedSearch, category: selectedCategory, rating },
     page
   );
 
@@ -72,6 +73,19 @@ export default function TrainerDiscovery() {
                 className="pl-10 pr-4 py-2 bg-card border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary w-full sm:w-64"
               />
             </div>
+            <select
+              value={rating}
+              onChange={(e) => {
+                setRating(e.target.value);
+                setPage(1);
+              }}
+              className="px-4 py-2 bg-card border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm text-muted-foreground cursor-pointer"
+            >
+              <option value="">Any Rating</option>
+              <option value="4.5">4.5+ Stars</option>
+              <option value="4.0">4+ Stars</option>
+              <option value="3.0">3+ Stars</option>
+            </select>
           </div>
         </div>
 
@@ -182,6 +196,7 @@ export default function TrainerDiscovery() {
                   onClick={() => {
                     setSearch("");
                     setSelectedCategory("All");
+                    setRating("");
                   }}
                 >
                   Clear all filters
@@ -191,7 +206,16 @@ export default function TrainerDiscovery() {
 
             {/* Pagination */}
             {pagination && pagination.totalPages > 1 && (
-              <div className="flex justify-center gap-2 mt-10">
+              <div className="flex justify-center items-center gap-2 mt-10">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handlePageChange(pagination.page - 1)}
+                  disabled={pagination.page === 1}
+                  className="w-9 h-9 p-0"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
                 {Array.from({ length: pagination.totalPages }).map((_, i) => (
                   <Button
                     key={i}
@@ -203,6 +227,15 @@ export default function TrainerDiscovery() {
                     {i + 1}
                   </Button>
                 ))}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handlePageChange(pagination.page + 1)}
+                  disabled={pagination.page === pagination.totalPages}
+                  className="w-9 h-9 p-0"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
               </div>
             )}
           </>

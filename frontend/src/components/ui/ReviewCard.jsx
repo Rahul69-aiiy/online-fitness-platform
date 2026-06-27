@@ -30,8 +30,7 @@ export default function ReviewCard({ review, currentUserId, onUpdate, onDelete }
       toast.success("Review updated successfully!");
     } catch (error) {
       console.error(error);
-      const errMsg = error.response?.data?.message || "Failed to update review";
-      toast.error(errMsg);
+      toast.error(error.message || "Failed to update review");
     } finally {
       setIsSaving(false);
     }
@@ -45,8 +44,7 @@ export default function ReviewCard({ review, currentUserId, onUpdate, onDelete }
       toast.success("Review deleted successfully!");
     } catch (error) {
       console.error(error);
-      const errMsg = error.response?.data?.message || "Failed to delete review";
-      toast.error(errMsg);
+      toast.error(error.message || "Failed to delete review");
     } finally {
       setIsDeleting(false);
     }

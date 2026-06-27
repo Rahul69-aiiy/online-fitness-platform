@@ -41,7 +41,7 @@ export default function PaymentSuccess() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
           >
-            <h1 className="text-3xl font-bold mb-3">Payment Successful! 🎉</h1>
+            <h1 className="text-3xl font-bold mb-3">Payment Successful!</h1>
             <p className="text-muted-foreground mb-2">
               Your subscription has been activated. You can now start your fitness journey!
             </p>

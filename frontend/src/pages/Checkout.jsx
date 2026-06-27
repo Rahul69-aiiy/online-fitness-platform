@@ -83,7 +83,7 @@ export default function Checkout() {
               subscriptionId: orderData.subscriptionId,
             });
 
-            toast.success("🎉 Payment successful! Your subscription is now active.");
+            toast.success("Payment successful! Your subscription is now active.");
             navigate("/dashboard");
           } catch (err) {
             toast.error(err?.message || "Payment verification failed. Please contact support.");

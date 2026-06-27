@@ -1,8 +1,8 @@
 import razorpay from "../config/razorpay.js";
 import crypto from "crypto";
 
-export const createRazorpayOrder = async ({ amount, receipt, notes }) => {
-  return await razorpay.orders.create({
+export const createRazorpayOrder = ({ amount, receipt, notes }) => {
+  return razorpay.orders.create({
     amount,
     currency: "INR",
     receipt,

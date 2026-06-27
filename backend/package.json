@@ -5,9 +5,7 @@
   "main": "server.js",
   "scripts": {
     "server": "nodemon server.js",
-    "start": "node server.js"
-  },
-  "prisma": {
+    "start": "node server.js",
     "seed": "node lib/seed.js"
   },
   "type": "module",

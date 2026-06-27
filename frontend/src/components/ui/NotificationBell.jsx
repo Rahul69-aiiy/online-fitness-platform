@@ -6,8 +6,6 @@ import { cn } from "@/lib/utils";
 import useMessageStore from "@/store/useMessageStore";
 import useAuthStore from "@/store/useAuthStore";
 import { getSocket, connectSocket } from "@/lib/socket";
-import userAvatar from "@/assets/user.jpg";
-
 export default function NotificationBell() {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -106,7 +104,7 @@ export default function NotificationBell() {
                 >
                   <div className="w-9 h-9 rounded-full overflow-hidden border border-border shrink-0 mt-0.5">
                     <img
-                      src={other?.avatar || userAvatar}
+                      src={other?.avatar || "/user.jpg"}
                       alt={other?.name}
                       className="w-full h-full object-cover"
                     />

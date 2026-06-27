@@ -1,22 +1,17 @@
 import prisma from "../config/db.js";
-import { uploadToCloudinary } from "../services/cloudinaryService.js";
+import { handleAvatarUpload } from "../services/cloudinaryService.js";
+import ExpressError from "../utils/ExpressError.js";
 
 // Update current user's profile
-export const updateCurrentUser = async (req, res) => {
+export const updateCurrentUser = async (req, res, next) => {
   try {
     const { name, avatar } = req.body;
 
-    let avatarUrl = avatar;
-    if (avatar && avatar.startsWith("data:image/")) {
-      try {
-        const uploadResponse = await uploadToCloudinary(avatar, {
-          folder: "fitness-app/avatars",
-        });
-        avatarUrl = uploadResponse.secure_url;
-      } catch (uploadError) {
-        console.error("Cloudinary upload error:", uploadError);
-        return res.status(500).json({ success: false, message: "Failed to upload avatar" });
-      }
+    let avatarUrl;
+    try {
+      avatarUrl = await handleAvatarUpload(avatar);
+    } catch (uploadError) {
+      return next(new ExpressError("Failed to upload avatar", 500));
     }
 
     const user = await prisma.user.update({

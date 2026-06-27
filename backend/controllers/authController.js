@@ -2,22 +2,20 @@ import bcrypt from "bcrypt"
 import createToken from "../utils/createToken.js"
 import prisma from "../config/db.js";
 import { verifyFirebaseToken } from "../services/firebaseService.js";
+import ExpressError from "../utils/ExpressError.js";
 
-const studentRegister = async (req, res) => {
+const studentRegister = async (req, res, next) => {
   try {
     const {name,  email, password } = req.body;
 
     if (!name || !email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required",
-      });
+      return next(new ExpressError("All fields are required", 400));
     }
 
     const User = await prisma.user.findUnique({where: {email}});
 
     if(User) {
-      return res.status(400).json({success: false, message: "User already exists"})
+      return next(new ExpressError("User already exists", 400));
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -51,7 +49,7 @@ const studentRegister = async (req, res) => {
   }
 };
 
-const trainerRegister = async(req, res) => {
+const trainerRegister = async(req, res, next) => {
   try {
     const {
       name,
@@ -66,10 +64,7 @@ const trainerRegister = async(req, res) => {
     } = req.body;
 
     if (!name || !email || !password) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required",
-      });
+      return next(new ExpressError("All fields are required", 400));
     }
 
     const existingUser = await prisma.user.findUnique({
@@ -77,10 +72,7 @@ const trainerRegister = async(req, res) => {
     });
 
     if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message: "User already exists",
-      });
+      return next(new ExpressError("User already exists", 400));
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -133,24 +125,21 @@ const trainerRegister = async(req, res) => {
   }
 }
 
-export const register = async(req, res) => {
+export const register = async(req, res, next) => {
   const { role } = req.params;
 
   if (role === "trainer") {
-    return trainerRegister(req, res);
+    return trainerRegister(req, res, next);
   }
-  return studentRegister(req, res);
+  return studentRegister(req, res, next);
 }
 
-export const login = async(req, res) => {
+export const login = async(req, res, next) => {
     try {
       const {email, password} = req.body;
 
       if (!email || !password) {
-        return res.status(400).json({
-          success: false, 
-          message: "All fields are required",
-        });
+        return next(new ExpressError("All fields are required", 400));
       }
 
       const User = await prisma.user.findUnique({
@@ -158,13 +147,13 @@ export const login = async(req, res) => {
       })
 
       if(!User) {
-        return res.status(404).json({success: false, message: "User does not exist",})
+        return next(new ExpressError("User does not exist", 404));
       }
 
       const isPasswordCorrect = await bcrypt.compare(password, User.password)
 
       if(!isPasswordCorrect) {
-        return res.status(400).json({success: false, message: "Invalid credentials"});
+        return next(new ExpressError("Invalid credentials", 400));
       }
 
       const options = {
@@ -191,7 +180,7 @@ export const logout = async (req, res) => {
   res.clearCookie("token").status(200).json({success: true, message: "Logged out successfully" });
 };
 
-export const googleLogin = async (req, res) => {
+export const googleLogin = async (req, res, next) => {
   try {
     const { firebaseToken } = req.body;
 
@@ -204,10 +193,7 @@ export const googleLogin = async (req, res) => {
     });
 
     if(!User) {
-      return res.status(400).json({
-        success: false, 
-        message: "Please register first."
-      });
+      return next(new ExpressError("Please register first.", 400));
     }
 
     const options = {

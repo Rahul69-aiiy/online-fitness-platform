@@ -9,7 +9,6 @@ import useAuthStore from "@/store/useAuthStore";
 import useMessageStore from "@/store/useMessageStore";
 import useToastStore from "@/store/useToastStore";
 import { getSocket, connectSocket } from "@/lib/socket";
-import userAvatar from "@/assets/user.jpg";
 
 export default function Messages({ role = "student" }) {
   const [searchParams] = useSearchParams();
@@ -82,7 +81,7 @@ export default function Messages({ role = "student" }) {
       await sendMessage(activeConversationId, text.trim());
       setText("");
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Failed to send message");
+      toast.error(err.message || "Failed to send message");
     } finally {
       setSending(false);
     }
@@ -161,7 +160,7 @@ export default function Messages({ role = "student" }) {
                 >
                   <div className="w-10 h-10 rounded-full overflow-hidden border border-border shrink-0">
                     <img
-                      src={other?.avatar || userAvatar}
+                      src={other?.avatar || "/user.jpg"}
                       alt={other?.name}
                       className="w-full h-full object-cover"
                     />
@@ -210,7 +209,7 @@ export default function Messages({ role = "student" }) {
               <div className="p-4 border-b border-border flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full overflow-hidden border border-border">
                   <img
-                    src={activeUser?.avatar || userAvatar}
+                    src={activeUser?.avatar || "/user.jpg"}
                     alt={activeUser?.name}
                     className="w-full h-full object-cover"
                   />
@@ -252,7 +251,7 @@ export default function Messages({ role = "student" }) {
                       {!isMine && (
                         <div className="w-7 h-7 rounded-full overflow-hidden border border-border shrink-0">
                           <img
-                            src={msg.sender?.avatar || userAvatar}
+                            src={msg.sender?.avatar || "/user.jpg"}
                             alt={msg.sender?.name}
                             className="w-full h-full object-cover"
                           />

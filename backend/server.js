@@ -43,12 +43,7 @@ app.use(routes)
 // Error handling middleware
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
-  let message = err.message || 'Oh No, Something Went Wrong!';
-
-  if (statusCode === 500 || err.name?.includes("Prisma") || err.message?.toLowerCase().includes("prisma")) {
-    console.error("Unhandled Server Error:", err);
-    message = "Something went wrong. Please try again later.";
-  }
+  const message = err.message || 'Oh No, Something Went Wrong!';
 
   res.status(statusCode).json({
     success: false,

@@ -31,7 +31,10 @@ export const createPlan = async (req, res, next) => {
     res.status(201).json({ success: true, data: plan });
   } catch (error) {
     console.error("Create plan error:", error);
-    next(error);
+    res.status(500).json({
+      success: false,
+      message: "An unexpected error occurred. Please try again later."
+    });
   }
 };
 
@@ -62,7 +65,10 @@ export const updatePlan = async (req, res, next) => {
     res.json({ success: true, data: plan });
   } catch (error) {
     console.error("Update plan error:", error);
-    next(error);
+    res.status(500).json({
+      success: false,
+      message: "An unexpected error occurred. Please try again later."
+    });
   }
 };
 
@@ -83,7 +89,10 @@ export const deletePlan = async (req, res, next) => {
     res.json({ success: true, message: "Plan deleted" });
   } catch (error) {
     console.error("Delete plan error:", error);
-    next(error);
+    res.status(500).json({
+      success: false,
+      message: "An unexpected error occurred. Please try again later."
+    });
   }
 };
 
@@ -101,7 +110,10 @@ export const getMyPlans = async (req, res, next) => {
     res.json({ success: true, data: plans });
   } catch (error) {
     console.error("Get my plans error:", error);
-    next(error);
+    res.status(500).json({
+      success: false,
+      message: "An unexpected error occurred. Please try again later."
+    });
   }
 };
 
@@ -213,7 +225,10 @@ export const createOrder = async (req, res, next) => {
     });
   } catch (error) {
     console.error("Create order error:", error);
-    next(error);
+    res.status(500).json({
+      success: false,
+      message: "An unexpected error occurred. Please try again later."
+    });
   }
 };
 
@@ -268,7 +283,10 @@ export const verifyPayment = async (req, res, next) => {
     res.json({ success: true, message: "Payment verified and subscription activated!" });
   } catch (error) {
     console.error("Verify payment error:", error);
-    next(error);
+    res.status(500).json({
+      success: false,
+      message: "An unexpected error occurred. Please try again later."
+    });
   }
 };
 
@@ -292,7 +310,10 @@ export const getMySubscriptions = async (req, res, next) => {
     res.json({ success: true, data: subscriptions });
   } catch (error) {
     console.error("Get subscriptions error:", error);
-    next(error);
+    res.status(500).json({
+      success: false,
+      message: "An unexpected error occurred. Please try again later."
+    });
   }
 };
 
@@ -316,7 +337,10 @@ export const cancelSubscription = async (req, res, next) => {
     res.json({ success: true, message: "Subscription cancelled" });
   } catch (error) {
     console.error("Cancel subscription error:", error);
-    next(error);
+    res.status(500).json({
+      success: false,
+      message: "An unexpected error occurred. Please try again later."
+    });
   }
 };
 
@@ -339,7 +363,10 @@ export const getPaymentHistory = async (req, res, next) => {
     res.json({ success: true, data: payments });
   } catch (error) {
     console.error("Get payment history error:", error);
-    next(error);
+    res.status(500).json({
+      success: false,
+      message: "An unexpected error occurred. Please try again later."
+    });
   }
 };
 
@@ -364,6 +391,9 @@ export const getMySubscribers = async (req, res, next) => {
     res.json({ success: true, data: subscriptions });
   } catch (error) {
     console.error("Get subscribers error:", error);
-    next(error);
+    res.status(500).json({
+      success: false,
+      message: "An unexpected error occurred. Please try again later."
+    });
   }
 };

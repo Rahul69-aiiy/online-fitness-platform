@@ -1,5 +1,5 @@
 import prisma from "../config/db.js";
-import { uploadToCloudinary } from "../services/cloudinaryService.js";
+import { handleAvatarUpload } from "../services/cloudinaryService.js";
 
 // Get All Trainers with Pagination & Filters
 export const getTrainers = async (req, res) => {
@@ -80,17 +80,12 @@ export const updateTrainerProfile = async (req, res) => {
   try {
     const { name, avatar, specialization, experience, bio, primaryLocation, certifications, categories } = req.body;
 
-    let avatarUrl = avatar;
-    if (avatar && avatar.startsWith("data:image/")) {
-      try {
-        const uploadResponse = await uploadToCloudinary(avatar, {
-          folder: "fitness-app/avatars",
-        });
-        avatarUrl = uploadResponse.secure_url;
-      } catch (uploadError) {
-        console.error("Cloudinary trainer upload error:", uploadError);
-        return res.status(500).json({ success: false, message: "Failed to upload avatar" });
-      }
+    let avatarUrl;
+    try {
+      avatarUrl = await handleAvatarUpload(avatar);
+    } catch (uploadError) {
+      console.error("Cloudinary trainer upload error:", uploadError);
+      return res.status(500).json({ success: false, message: "Failed to upload avatar" });
     }
 
     // First update the user if name or avatar are provided
@@ -107,7 +102,7 @@ export const updateTrainerProfile = async (req, res) => {
         where: { userId: req.user.id },
         data: { 
           specialization: specialization || undefined, 
-          experience: parseInt(experience), 
+          experience: parseInt(experience)|| undefined, 
           bio: bio || undefined, 
           primaryLocation: primaryLocation || undefined, 
           certifications: certifications || undefined, 
@@ -115,7 +110,7 @@ export const updateTrainerProfile = async (req, res) => {
         },
         include: { 
             user: {
-                omit : {password: true}
+              omit : {password: true}
             }
         },
     });

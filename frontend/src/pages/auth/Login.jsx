@@ -2,7 +2,6 @@ import { useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import AuthLayout from "@/components/layout/AuthLayout";
-import googleIcon from "@/assets/google.svg"
 import { useNavigate } from "react-router-dom";
 import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod"
@@ -48,7 +47,7 @@ export default function Login() {
         toast.error(result?.message || "Login failed");
       }
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Login failed");
+      toast.error(err.message || "Login failed");
     }
   };
 
@@ -60,7 +59,7 @@ export default function Login() {
       await googleLogin(token);
       navigate("/dashboard");
     } catch (error) {
-      toast.error(error?.response?.data?.message || "Google login failed");
+      toast.error(error.message || "Google login failed");
     }
   };
 
@@ -120,7 +119,7 @@ export default function Login() {
             className="w-full py-6 bg-white/5 border-white/10 text-white hover:bg-white/10 flex items-center justify-center"
             onClick={handleGoogleLogin}
           >
-            <img src={googleIcon} alt="Google" className="w-5 h-5 mr-2" />
+            <img src="/google.svg" alt="Google" className="w-5 h-5 mr-2" />
             Sign In with Google
           </Button>
         </div>

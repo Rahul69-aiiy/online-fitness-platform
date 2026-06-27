@@ -1,4 +1,5 @@
 import prisma from '../config/db.js';
+import ExpressError from '../utils/ExpressError.js';
 
 // Get all conversations for the current user (latest message per contact)
 export const getConversations = async (req, res) => {
@@ -54,7 +55,7 @@ export const getConversations = async (req, res) => {
     });
   } catch (error) {
     console.error('Get conversations error:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    res.status(500).json({ success: false, message: 'An unexpected error occurred. Please try again later.' });
   }
 };
 
@@ -112,18 +113,18 @@ export const getConversationMessages = async (req, res) => {
     });
   } catch (error) {
     console.error('Get conversation messages error:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    res.status(500).json({ success: false, message: 'An unexpected error occurred. Please try again later.' });
   }
 };
 
 // Send a message (only for subscribers)
-export const sendMessage = async (req, res) => {
+export const sendMessage = async (req, res, next) => {
   try {
     const senderId = req.user.id;
     const { receiverId, content } = req.body;
 
     if (!receiverId || !content?.trim()) {
-      return res.status(400).json({ success: false, message: 'receiverId and content are required' });
+      return next(new ExpressError('receiverId and content are required', 400));
     }
 
     // subscription check
@@ -141,7 +142,7 @@ export const sendMessage = async (req, res) => {
     });
 
     if (!subscription) {
-      return res.status(403).json({ success: false, message: 'You must have an active subscription to send messages' });
+      return next(new ExpressError('You must have an active subscription to send messages', 403));
     }
 
     const message = await prisma.message.create({
@@ -155,7 +156,7 @@ export const sendMessage = async (req, res) => {
     res.status(201).json({ success: true, data: message });
   } catch (error) {
     console.error('Send message error:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    res.status(500).json({ success: false, message: 'An unexpected error occurred. Please try again later.' });
   }
 };
 
@@ -168,6 +169,6 @@ export const getUnreadCount = async (req, res) => {
     res.json({ success: true, data: { unreadCount: count } });
   } catch (error) {
     console.error('Get unread count error:', error);
-    res.status(500).json({ success: false, message: 'Server error' });
+    res.status(500).json({ success: false, message: 'An unexpected error occurred. Please try again later.' });
   }
 };

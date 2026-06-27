@@ -15,7 +15,6 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CATEGORIES } from "@/data/constants";
-import auth2 from "@/assets/auth2.jpg"
 import api from "@/lib/api.js";
 import useToastStore from "@/store/useToastStore";
 
@@ -155,7 +154,7 @@ export default function TrainerRegister({ role, setRole }) {
       );
       navigate("/trainer/dashboard");
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to register trainer");
+      toast.error(error.message || "Failed to register trainer");
     }
   };
 
@@ -167,7 +166,7 @@ export default function TrainerRegister({ role, setRole }) {
     <AuthLayout
       title="Create an account"
       description="Join our fitness community today"
-      image={auth2}
+      image="/auth2.jpg"
     >
       <form className="space-y-4" 
               onSubmit={handleSubmit(handleSubmitFinal)}>

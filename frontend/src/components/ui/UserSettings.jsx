@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import userImg from "@/assets/user.jpg";
 import api from "@/lib/api";
 import useAuthStore from "@/store/useAuthStore";
 import useToastStore from "@/store/useToastStore";
@@ -53,8 +52,7 @@ export default function UserSettings() {
       }
     } catch (error) {
       console.error(error);
-      const errMsg = error.response?.data?.message || "Failed to update profile";
-      toast.error(errMsg);
+      toast.error(error.message || "Failed to update profile");
     } finally {
       setIsSaving(false);
     }
@@ -67,8 +65,7 @@ export default function UserSettings() {
       window.location.href = "/login";
     } catch (error) {
       console.error(error);
-      const errMsg = error.response?.data?.message || "Failed to delete account";
-      toast.error(errMsg);
+      toast.error(error.message || "Failed to delete account");
     }
   };
 
@@ -83,7 +80,7 @@ export default function UserSettings() {
           <div className="flex items-center gap-6">
             <div className="w-20 h-20 rounded-full bg-secondary overflow-hidden flex items-center justify-center">
               <img
-                src={avatar || userImg}
+                src={avatar || "/user.jpg"}
                 alt="Avatar"
                 className="w-full h-full object-cover"
               />

@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import auth1 from "@/assets/auth1.jpg";
 
 export default function AuthLayout({ children, title, description, image }) {
   return (
@@ -30,7 +29,7 @@ export default function AuthLayout({ children, title, description, image }) {
       {/* Right Side: Image */}
       <div className="hidden md:block flex-1 relative overflow-hidden">
         <img 
-          src={image || auth1} 
+          src={image || "/auth1.jpg"} 
           alt="Fitness" 
           className="absolute inset-0 w-full h-full object-cover"
         />
