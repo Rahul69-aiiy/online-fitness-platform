@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
 
-// STUDENT: Subscriptions 
+// STUDENT: Subscriptions
 
 export function useMySubscriptions(options = {}) {
   return useQuery({
@@ -11,63 +11,11 @@ export function useMySubscriptions(options = {}) {
       if (!res.data?.success) throw new Error(res.data?.message || "Failed to fetch subscriptions");
       return res.data.data;
     },
-    ...options
+    ...options,
   });
 }
 
-export function useCancelSubscription() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (subscriptionId) => {
-      const res = await api.delete(`/subscriptions/${subscriptionId}`);
-      if (!res.data?.success) throw new Error(res.data?.message || "Failed to cancel subscription");
-      return res.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["my-subscriptions"] });
-    },
-  });
-}
-
-// STUDENT: Payment 
-
-export function useCreateOrder() {
-  return useMutation({
-    mutationFn: async (planId) => {
-      const res = await api.post("/subscriptions/order", { planId });
-      if (!res.data?.success) throw new Error(res.data?.message || "Failed to create order");
-      return res.data.data;
-    },
-  });
-}
-
-export function useVerifyPayment() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (payload) => {
-      const res = await api.post("/subscriptions/verify", payload);
-      if (!res.data?.success) throw new Error(res.data?.message || "Payment verification failed");
-      return res.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["my-subscriptions"] });
-      queryClient.invalidateQueries({ queryKey: ["payment-history"] });
-    },
-  });
-}
-
-export function usePaymentHistory() {
-  return useQuery({
-    queryKey: ["payment-history"],
-    queryFn: async () => {
-      const res = await api.get("/subscriptions/payments");
-      if (!res.data?.success) throw new Error(res.data?.message || "Failed to fetch payment history");
-      return res.data.data;
-    },
-  });
-}
-
-// TRAINER: Plans 
+// TRAINER: Plans
 
 export function useMyPlans() {
   return useQuery({
@@ -122,7 +70,7 @@ export function useDeletePlan() {
   });
 }
 
-// TRAINER: Subscribers 
+// TRAINER: Subscribers
 
 export function useMySubscribers() {
   return useQuery({

@@ -12,7 +12,7 @@ import {
   CalendarDays,
 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { usePaymentHistory } from "@/hooks/useSubscriptionQuery";
+import { usePaymentHistory } from "@/hooks/usePaymentQuery";
 import Spinner from "@/components/ui/Spinner";
 
 

@@ -6,6 +6,7 @@ import trainerRoutes from "./trainers.js"
 import reviewRoutes from "./reviews.js"
 import messageRoutes from "./messages.js"
 import subscriptionRoutes from "./subscriptions.js"
+import paymentRoutes from "./payments.js"
 
 const router = Router()
 
@@ -17,6 +18,7 @@ router.use('/api/trainers', trainerRoutes);
 router.use('/api/reviews', reviewRoutes);
 router.use('/api/messages', messageRoutes);
 router.use('/api/subscriptions', subscriptionRoutes);
+router.use('/api/payments', paymentRoutes);
 
 // Invalid routes
 router.use((req, res, next) => {

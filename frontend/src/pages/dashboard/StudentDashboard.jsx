@@ -1,12 +1,11 @@
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Star, CreditCard, Users, Clock, XCircle, CheckCircle2, ArrowRight } from "lucide-react";
+import { Star, CreditCard, Users, Clock, CheckCircle2, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import useAuthStore from "@/store/useAuthStore";
-import { useMySubscriptions, useCancelSubscription } from "@/hooks/useSubscriptionQuery";
+import { useMySubscriptions } from "@/hooks/useSubscriptionQuery";
 import Spinner from "@/components/ui/Spinner";
-import useToastStore from "@/store/useToastStore";
 
 function formatExpiry(dateStr) {
   try {
@@ -28,9 +27,7 @@ function formatExpiry(dateStr) {
 
 export default function StudentDashboard() {
   const user = useAuthStore((s) => s.user);
-  const toast = useToastStore((s) => s.toast);
   const { data: subscriptions = [], isLoading } = useMySubscriptions();
-  const cancelMutation = useCancelSubscription();
 
   const activeSubscriptions = subscriptions.filter(
     (s) => s.isActive && new Date(s.endDate) > new Date()
@@ -39,15 +36,6 @@ export default function StudentDashboard() {
     (s) => !s.isActive || new Date(s.endDate) <= new Date()
   );
 
-  const handleCancel = async (subId) => {
-    if (!confirm("Are you sure you want to cancel this subscription?")) return;
-    try {
-      await cancelMutation.mutateAsync(subId);
-      toast.success("Subscription cancelled.");
-    } catch (err) {
-      toast.error(err?.message || "Failed to cancel subscription");
-    }
-  };
 
   return (
     <DashboardLayout role="student">
@@ -173,15 +161,6 @@ export default function StudentDashboard() {
                               View Profile
                             </Button>
                           </Link>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleCancel(sub.id)}
-                            disabled={cancelMutation.isPending}
-                            className="text-destructive hover:bg-destructive/10 hover:text-destructive border-destructive/20"
-                          >
-                            <XCircle className="w-3.5 h-3.5" />
-                          </Button>
                         </div>
                       </CardContent>
                     </Card>

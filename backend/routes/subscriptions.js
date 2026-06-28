@@ -5,11 +5,7 @@ import {
   updatePlan,
   deletePlan,
   getMyPlans,
-  createOrder,
-  verifyPayment,
   getMySubscriptions,
-  cancelSubscription,
-  getPaymentHistory,
   getMySubscribers,
 } from "../controllers/subscriptionController.js";
 
@@ -24,13 +20,7 @@ router.get("/plans/my", isAuthenticated, authorizeRoles("TRAINER"), getMyPlans);
 // TRAINER: Subscribers
 router.get("/subscribers", isAuthenticated, authorizeRoles("TRAINER"), getMySubscribers);
 
-// STUDENT: Checkout 
-router.post("/order", isAuthenticated, authorizeRoles("STUDENT"), createOrder);
-router.post("/verify", isAuthenticated, authorizeRoles("STUDENT"), verifyPayment);
-
-// STUDENT: Subscriptions and Payments 
+// STUDENT: Active subscription list 
 router.get("/my", isAuthenticated, authorizeRoles("STUDENT"), getMySubscriptions);
-router.get("/payments", isAuthenticated, authorizeRoles("STUDENT"), getPaymentHistory);
-router.delete("/:subscriptionId", isAuthenticated, authorizeRoles("STUDENT"), cancelSubscription);
 
 export default router;
