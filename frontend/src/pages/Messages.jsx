@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import useAuthStore from "@/store/useAuthStore";
 import useMessageStore from "@/store/useMessageStore";
 import useToastStore from "@/store/useToastStore";
-import { getSocket, connectSocket } from "@/lib/socket";
+import { getSocket } from "@/lib/socket";
 
 export default function Messages({ role = "student" }) {
   const [searchParams] = useSearchParams();
@@ -38,10 +38,9 @@ export default function Messages({ role = "student" }) {
   const [searchConv, setSearchConv] = useState("");
   const bottomRef = useRef(null);
 
-  // Connect socket on mount
+  // Listen for socket messages on mount
   useEffect(() => {
     if (user?.id) {
-      connectSocket(user.id);
       const socket = getSocket();
       socket.on("newMessage", receiveNewMessage);
       return () => socket.off("newMessage", receiveNewMessage);

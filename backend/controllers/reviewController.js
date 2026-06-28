@@ -54,15 +54,16 @@ export const updateReview = async (req, res, next) => {
     const reviewId = req.params.id;
     const { rating, comment } = req.body;
 
-    // Check if review exists and belongs to current user
     const existingReview = await prisma.review.findUnique({
       where: { id: reviewId }
     });
 
+    // Check if review exists 
     if (!existingReview) {
       return next(new ExpressError('Review not found', 404));
     }
 
+    // belongs to current user?
     if (existingReview.userId !== req.user.id) {
       return next(new ExpressError('You do not have permission to update this review', 403));
     }
@@ -76,7 +77,6 @@ export const updateReview = async (req, res, next) => {
       include: { user: true }
     });
 
-    // Recalculate trainer rating
     const reviews = await prisma.review.findMany({ where: { trainerId: updatedReview.trainerId } });
     const avgRating = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
     
@@ -97,7 +97,6 @@ export const deleteReview = async (req, res, next) => {
   try {
     const reviewId = req.params.id;
 
-    // Check if review exists and belongs to current user
     const existingReview = await prisma.review.findUnique({
       where: { id: reviewId }
     });
@@ -116,7 +115,6 @@ export const deleteReview = async (req, res, next) => {
       where: { id: reviewId }
     });
 
-    // Recalculate trainer rating
     const reviews = await prisma.review.findMany({ where: { trainerId } });
     const avgRating = reviews.length > 0 ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length : 0;
     

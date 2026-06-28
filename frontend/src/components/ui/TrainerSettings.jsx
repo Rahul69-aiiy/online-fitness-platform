@@ -134,7 +134,7 @@ export default function TrainerSettings() {
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Left side: Basic Info */}
-            <div className="lg:col-span-5 space-y-6">
+            <div className="lg:col-span-4 space-y-6">
               <h3 className="text-xs font-semibold text-foreground border-b pb-2 uppercase tracking-wider">Basic Information</h3>
               
               <div className="flex items-center gap-4">
@@ -185,7 +185,7 @@ export default function TrainerSettings() {
             </div>
 
             {/* Right side: Professional Details */}
-            <div className="lg:col-span-7 space-y-6">
+            <div className="lg:col-span-8 lg:border-l lg:border-white/20 lg:pl-8 space-y-6">
               <h3 className="text-xs font-semibold text-foreground border-b pb-2 uppercase tracking-wider">Professional Details</h3>
 
               <div className="space-y-2">

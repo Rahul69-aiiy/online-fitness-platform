@@ -22,6 +22,7 @@ import {
 } from "@/hooks/useSubscriptionQuery";
 import Spinner from "@/components/ui/Spinner";
 import useToastStore from "@/store/useToastStore";
+import ConfirmationDialog from "@/components/ui/ConfirmationDialog";
 
 const emptyForm = { name: "", description: "", price: "", durationDays: "" };
 
@@ -172,6 +173,8 @@ export default function ManagePlans() {
   const [showCreate, setShowCreate] = useState(false);
   const [editingPlan, setEditingPlan] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [planIdToDelete, setPlanIdToDelete] = useState(null);
 
   const handleCreate = async (form) => {
     try {
@@ -193,8 +196,16 @@ export default function ManagePlans() {
     }
   };
 
-  const handleDelete = async (planId) => {
-    if (!confirm("Are you sure you want to delete this plan? This action cannot be undone.")) return;
+  const handleDelete = (planId) => {
+    setPlanIdToDelete(planId);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!planIdToDelete) return;
+    const planId = planIdToDelete;
+    setShowDeleteConfirm(false);
+    setPlanIdToDelete(null);
     setDeletingId(planId);
     try {
       await deleteMutation.mutateAsync(planId);
@@ -334,6 +345,18 @@ export default function ManagePlans() {
           </div>
         )}
       </div>
+
+      <ConfirmationDialog
+        isOpen={showDeleteConfirm}
+        onClose={() => {
+          setShowDeleteConfirm(false);
+          setPlanIdToDelete(null);
+        }}
+        onConfirm={confirmDelete}
+        title="Delete Plan"
+        description="Are you absolutely sure you want to delete this subscription plan? This action cannot be undone."
+        confirmText="Delete Plan"
+      />
     </DashboardLayout>
   );
 }

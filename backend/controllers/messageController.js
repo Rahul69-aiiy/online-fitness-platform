@@ -1,5 +1,6 @@
 import prisma from '../config/db.js';
 import ExpressError from '../utils/ExpressError.js';
+import { emitToUser } from '../lib/socket.js';
 
 // Get all conversations for the current user (latest message per contact)
 export const getConversations = async (req, res) => {
@@ -21,21 +22,21 @@ export const getConversations = async (req, res) => {
       orderBy: { sentAt: 'desc' },
     });
 
-    // Group by "other user" – keep only the latest message per contact
+    // Group by "other user" and keep only the latest message per contact
     const conversationMap = new Map();
     for (const msg of messages) {
       const otherId = msg.senderId === userId ? msg.receiverId : msg.senderId;
       const otherUser = msg.senderId === userId ? msg.receiver : msg.sender;
       if (!conversationMap.has(otherId)) {
-        conversationMap.set(otherId, {
+        conversationMap[otherId] = {
           otherUser,
           lastMessage: msg,
           unreadCount: 0,
-        });
+        };
       }
-      // Count messages FROM other user that are unread (no isRead field yet)
+      // Count messages from other user that are unread (no isRead field yet)
       if (msg.receiverId === userId && !msg.isRead) {
-        const existing = conversationMap.get(otherId);
+        const existing = conversationMap[otherId];
         if (existing) existing.unreadCount += 1;
       }
     }
@@ -152,6 +153,9 @@ export const sendMessage = async (req, res, next) => {
         receiver: { select: { id: true, name: true, avatar: true } },
       },
     });
+
+    // Send the message via socket if the receiver is online
+    emitToUser(receiverId, 'newMessage', message);
 
     res.status(201).json({ success: true, data: message });
   } catch (error) {

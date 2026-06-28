@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import useMessageStore from "@/store/useMessageStore";
 import useAuthStore from "@/store/useAuthStore";
-import { getSocket, connectSocket } from "@/lib/socket";
+import { getSocket } from "@/lib/socket";
 export default function NotificationBell() {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -19,10 +19,9 @@ export default function NotificationBell() {
     receiveNewMessage,
   } = useMessageStore();
 
-  // Connect socket & listen for new messages
+  // Listen for new messages
   useEffect(() => {
     if (user?.id) {
-      connectSocket(user.id);
       const socket = getSocket();
       socket.on("newMessage", receiveNewMessage);
       return () => socket.off("newMessage", receiveNewMessage);

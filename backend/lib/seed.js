@@ -100,7 +100,7 @@ async function main() {
       ],
     });
 
-    // Seed a couple of reviews for the first 10 trainers
+    // Seed a couple of reviews for first 10 trainers
     if (i <= 10) {
       await prisma.review.create({
         data: {

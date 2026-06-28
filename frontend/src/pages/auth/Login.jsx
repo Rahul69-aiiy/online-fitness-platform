@@ -59,8 +59,8 @@ export default function Login() {
       await googleLogin(token);
       navigate("/dashboard");
     } catch (error) {
-      toast.error(error.message || "Google login failed");
-    }
+        toast.error(error.message || "Google login failed");
+      }
   };
 
   return (

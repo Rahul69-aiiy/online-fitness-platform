@@ -6,7 +6,7 @@ const useTrainerStore = create((set) => ({
   selectedTrainer: null,
   isLoading: false,
   pagination: { page: 1, totalPages: 1, total: 0 },
-  filters: { search: '', category: '' },
+  filters: { search: '', category: '', rating: '' },
 
   setFilters: (filters) => set((s) => ({ filters: { ...s.filters, ...filters } })),
 
@@ -16,6 +16,7 @@ const useTrainerStore = create((set) => ({
       const params = new URLSearchParams({ page, limit: 12 });
       if (filters.search) params.set('search', filters.search);
       if (filters.category && filters.category !== 'All') params.set('category', filters.category);
+      if (filters.rating) params.set('rating', filters.rating);
       const res = await api.get(`/trainers?${params.toString()}`);
       if (res.data?.success) {
         set({

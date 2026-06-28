@@ -148,4 +148,3 @@ export default function ReviewCard({ review, currentUserId, onUpdate, onDelete }
     </div>
   );
 }
-

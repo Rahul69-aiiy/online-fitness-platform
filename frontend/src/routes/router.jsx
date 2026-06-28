@@ -1,28 +1,36 @@
+import { Navigate, Route, Routes } from "react-router-dom";
+import ProtectedRoute from "./ProtectedRoute";
 import privateRoutes from "./privateRoutes";
 import publicRoutes from "./publicRoutes";
-import { Navigate, Route, Routes} from "react-router-dom";
-// import NotFound from "../components/ui/NotFound";
+
+const routes = [
+  ...publicRoutes.map((r) => ({ ...r, isPrivate: false })),
+  ...privateRoutes.map((r) => ({ ...r, isPrivate: true })),
+  {
+    path: "*",
+    element: <Navigate to="/" replace />,
+    isPrivate: false,
+  },
+];
 
 const Router = () => {
-  const temp = [...publicRoutes, ...privateRoutes, 
-    { 
-      // Fallback 
-      path: "*",
-      element: <Navigate to="/" replace />
-      // path: "*",
-      // element: <NotFound />
-    }
-  ]
-
-  const pageRoutes = temp.map((route) => (
-    <Route
-      key={route.path}
-      path={route.path}
-      element={route.element}
-    />
-  ))
-  
-  return <Routes>{pageRoutes}</Routes>;
+  return (
+    <Routes>
+      {routes.map(({ path, element, isPrivate }) => (
+        <Route
+          key={path}
+          path={path}
+          element={
+            isPrivate ? (
+              <ProtectedRoute>{element}</ProtectedRoute>
+            ) : (
+              element
+            )
+          }
+        />
+      ))}
+    </Routes>
+  );
 };
 
-export default Router
+export default Router;

@@ -1,11 +1,19 @@
 import { Server } from 'socket.io';
-import prisma from '../config/db.js';
 
 // User online tracking
 const onlineUsers = new Map(); // userId -> socketId
+let io = null;
+
+export function emitToUser(userId, event, data) {
+  if (!io) return;
+  const socketId = onlineUsers[userId];
+  if (socketId) {
+    io.to(socketId).emit(event, data);
+  }
+}
 
 export default function setupSocket(server) {
-  const io = new Server(server, {
+  io = new Server(server, {
     cors: {
       origin: [process.env.CLIENT_URL],
       credentials: true
@@ -20,56 +28,6 @@ export default function setupSocket(server) {
       onlineUsers.set(userId, socket.id);
       socket.userId = userId;
       console.log(`User ${userId} is online`);
-      
-      // Notify others user is online
-      io.emit('userStatusChanged', { userId, online: true });
-    });
-
-    // Send message
-    socket.on('sendMessage', async (data) => {
-      try {
-        const { senderId, receiverId, content } = data;
-
-        // Check active subscription
-        const subscription = await prisma.subscription.findFirst({
-          where: {
-            OR: [
-              { studentId: senderId, trainer: { userId: receiverId } },
-              { studentId: receiverId, trainer: { userId: senderId } },
-            ],
-            isActive: true,
-            endDate: {
-              gt: new Date(),
-            },
-          },
-        });
-
-        if (!subscription) {
-          socket.emit('error', { message: 'You must have an active subscription to send messages' });
-          return;
-        }
-
-        // Save message to DB
-        const message = await prisma.message.create({
-          data: {
-            senderId,
-            receiverId,
-            content
-          },
-          include: { sender: true, receiver: true }
-        });
-
-        // Send to receiver if online
-        const receiverSocketId = onlineUsers.get(data.receiverId);
-        if (receiverSocketId) {
-          io.to(receiverSocketId).emit('newMessage', message);
-        }
-        
-        // Send confirmation to sender
-        socket.emit('messageSent', message);
-      } catch (error) {
-        console.error('Socket send message error:', error);
-      }
     });
 
     // User disconnects
@@ -78,7 +36,6 @@ export default function setupSocket(server) {
       
       if (socket.userId) {
         onlineUsers.delete(socket.userId);
-        io.emit('userStatusChanged', { userId: socket.userId, online: false });
       }
     });
   });

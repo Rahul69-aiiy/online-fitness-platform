@@ -1,7 +1,7 @@
 import prisma from "../config/db.js";
 import { handleAvatarUpload } from "../services/cloudinaryService.js";
 
-// Get All Trainers with Pagination & Filters
+// Get All Trainers with Pagination and Filters
 export const getTrainers = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -88,7 +88,6 @@ export const updateTrainerProfile = async (req, res) => {
       return res.status(500).json({ success: false, message: "Failed to upload avatar" });
     }
 
-    // First update the user if name or avatar are provided
     if (name || avatar) {
       await prisma.user.update({
         where: { id: req.user.id },
