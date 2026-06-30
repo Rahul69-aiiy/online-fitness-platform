@@ -12,7 +12,6 @@ import http from "http"
 import cookieParser from "cookie-parser";
 import prisma from "./config/db.js";
 import routes from "./routes/index.js";
-import { limiter} from "./middlewares/middleware.js";
 import setupSocket from "./lib/socket.js";
 import "./config/firebase.js";
 
@@ -35,7 +34,6 @@ app.use(
   })
 );
 app.use(morgan("dev"));
-app.use(limiter);
 
 // Routes setup
 app.use(routes)

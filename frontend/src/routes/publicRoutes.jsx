@@ -11,11 +11,13 @@ const publicRoutes = [
     },
     {
         path: '/login',
-        element: <Login />
+        element: <Login />,
+        publicOnly: true,
     },
     {
         path: '/register',
-        element: <Register />
+        element: <Register />,
+        publicOnly: true,
     },
     {
         path: '/trainers',

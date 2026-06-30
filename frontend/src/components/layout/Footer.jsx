@@ -7,7 +7,9 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
             <Link to="/" className="flex items-center gap-2">
-              <img src="/favicon.svg" alt="physiq logo" className="w-8 h-8" />
+              <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0">
+                <img src="/favicon.svg" alt="physiq logo" className="w-10 h-10 object-cover" />
+              </div>
               <span className="text-xl font-bold tracking-tight">PhysiQ</span>
             </Link>
             <p className="text-sm text-muted-foreground">

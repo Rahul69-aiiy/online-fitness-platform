@@ -55,7 +55,7 @@ export const updatePlan = async (req, res, next) => {
       where: { id: planId },
       data: {
         name: name || undefined,
-        description: description !== undefined ? description : undefined,
+        description: description || undefined,
         price: price ? parseFloat(price) : undefined,
         durationDays: durationDays ? parseInt(durationDays) : undefined,
       },

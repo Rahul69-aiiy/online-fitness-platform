@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 export default function AuthLayout({ children, title, description, image }) {
   return (
@@ -8,8 +9,14 @@ export default function AuthLayout({ children, title, description, image }) {
       <div className="flex-1 flex flex-col justify-center items-center p-8 md:p-16 lg:p-24 bg-background">
         <div className="w-full max-w-md space-y-8">
           <div className="text-center md:text-left">
-            <Link to="/" className="inline-flex items-center gap-2 mb-8">
-              <img src="/favicon.svg" alt="physiq logo" className="w-10 h-10" />
+            <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-6">
+              <ArrowLeft className="w-4 h-4" />
+              Back to Home
+            </Link>
+            <Link to="/" className="flex items-center gap-2 mb-8">
+              <div className="w-12 h-12 rounded-2xl overflow-hidden flex-shrink-0">
+                <img src="/favicon.svg" alt="physiq logo" className="w-12 h-12 object-cover" />
+              </div>
               <span className="text-2xl font-bold tracking-tight">PhysiQ</span>
             </Link>
             <h1 className="text-3xl font-bold tracking-tight">{title}</h1>

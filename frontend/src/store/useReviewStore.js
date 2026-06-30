@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import api from '@/lib/api';
 
-const useReviewStore = create((set, get) => ({
+const useReviewStore = create((set) => ({
   reviews: [],
   isLoading: false,
 

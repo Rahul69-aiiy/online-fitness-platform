@@ -49,8 +49,8 @@ async function main() {
     { name: "Neha Gupta", spec: "Pre/Postnatal Fitness", bio: "Specialized fitness guidance for new and expecting mothers to stay strong and healthy.", location: "Mama Fit, Gurgaon", certs: ["NASM Women's Fitness Specialist"], cats: ["YOGA", "PILATES"], rating: 4.9, avatar: "/src/assets/pic2.jpg" },
   ];
 
-  // Seed 25 trainers 
-  for (let i = 1; i <= 25; i++) {
+  // Seed 50 trainers 
+  for (let i = 1; i <= 50; i++) {
     const template = trainerTemplates[(i - 1) % trainerTemplates.length];
     const suffix = i > trainerTemplates.length ? ` (${Math.floor((i - 1) / trainerTemplates.length) + 1})` : "";
     const email = `trainer${i}@example.com`;
@@ -81,35 +81,87 @@ async function main() {
     });
 
     // Create a couple of plans for each trainer
-    await prisma.subscriptionPlan.createMany({
-      data: [
-        {
-          trainerId: trainerProfile.id,
-          name: "Standard Coaching Pack",
-          description: "Monthly plan including weekly video calls and dynamic workout scheduling.",
-          price: 29.00 + (i % 5) * 10,
-          durationDays: 30,
-        },
-        {
-          trainerId: trainerProfile.id,
-          name: "Premium Elite Support",
-          description: "Complete full-year fitness planning, diet charts, and priority support.",
-          price: 249.00 + (i % 5) * 50,
-          durationDays: 365,
-        },
-      ],
+    const plan1 = await prisma.subscriptionPlan.create({
+      data: {
+        trainerId: trainerProfile.id,
+        name: "Standard Coaching Pack",
+        description: "Monthly plan including weekly video calls and dynamic workout scheduling.",
+        price: 29.00 + (i % 5) * 10,
+        durationDays: 30,
+      }
     });
 
-    // Seed a couple of reviews for first 10 trainers
-    if (i <= 10) {
-      await prisma.review.create({
+    const plan2 = await prisma.subscriptionPlan.create({
+      data: {
+        trainerId: trainerProfile.id,
+        name: "Premium Elite Support",
+        description: "Complete full-year fitness planning, diet charts, and priority support.",
+        price: 249.00 + (i % 5) * 50,
+        durationDays: 365,
+      }
+    });
+
+    // Seed a couple of reviews, subscriptions, payments and messages for all 25 trainers for student1
+    await prisma.review.create({
+      data: {
+        userId: student1.id,
+        trainerId: trainerProfile.id,
+        rating: i % 2 === 0 ? 5 : 4,
+        comment: `Great training sessions with ${name}! Always on time and extremely motivating.`,
+      },
+    });
+
+    const sub1 = await prisma.subscription.create({
+      data: {
+        studentId: student1.id,
+        trainerId: trainerProfile.id,
+        planId: plan1.id,
+        startDate: new Date(),
+        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        isActive: true
+      }
+    });
+
+    await prisma.payment.create({
+      data: {
+        studentId: student1.id,
+        subscriptionId: sub1.id,
+        amount: plan1.price,
+        status: "SUCCESS"
+      }
+    });
+
+    if (i === 10) {
+      // Create 100 messages for Neha Gupta
+      const messagesData = [];
+      for (let j = 0; j < 100; j++) {
+        messagesData.push({
+          senderId: j % 2 === 0 ? student1.id : user.id,
+          receiverId: j % 2 === 0 ? user.id : student1.id,
+          content: `This is test message ${j + 1} for pagination testing. Keep up the good work!`,
+          sentAt: new Date(Date.now() - (100 - j) * 60000) // Stagger by minutes
+        });
+      }
+      await prisma.message.createMany({ data: messagesData });
+    } else {
+      await prisma.message.create({
         data: {
-          userId: student1.id,
-          trainerId: trainerProfile.id,
-          rating: i % 2 === 0 ? 5 : 4,
-          comment: `Great training sessions with ${name}! Always on time and extremely motivating.`,
-        },
+          senderId: student1.id,
+          receiverId: user.id, // trainer's user ID
+          content: `Hi ${name}, I just subscribed to your plan! Looking forward to working together.`
+        }
       });
+
+      await prisma.message.create({
+        data: {
+          senderId: user.id,
+          receiverId: student1.id,
+          content: `Welcome aboard! Let's get started on your fitness journey.`
+        }
+      });
+    }
+
+    if (i <= 10 && i % 2 === 0) {
       await prisma.review.create({
         data: {
           userId: student2.id,
@@ -117,6 +169,26 @@ async function main() {
           rating: 5,
           comment: "I have seen massive improvements in my overall physical conditioning. Recommended!",
         },
+      });
+      
+      const sub2 = await prisma.subscription.create({
+        data: {
+          studentId: student2.id,
+          trainerId: trainerProfile.id,
+          planId: plan2.id,
+          startDate: new Date(),
+          endDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+          isActive: true
+        }
+      });
+
+      await prisma.payment.create({
+        data: {
+          studentId: student2.id,
+          subscriptionId: sub2.id,
+          amount: plan2.price,
+          status: "SUCCESS"
+        }
       });
     }
   }

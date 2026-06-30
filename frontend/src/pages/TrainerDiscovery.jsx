@@ -7,8 +7,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Star, Users, CheckCircle2, Search, Filter, ChevronLeft, ChevronRight } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import useTrainersQuery from "@/hooks/useTrainersQuery";
+import useAuthStore from "@/store/useAuthStore";
 
 export default function TrainerDiscovery() {
+  const user = useAuthStore((s) => s.user);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const isStudent = user?.role === "STUDENT";
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
@@ -45,7 +49,7 @@ export default function TrainerDiscovery() {
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    // window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
 
@@ -176,9 +180,11 @@ export default function TrainerDiscovery() {
                             Profile
                           </Button>
                         </Link>
-                        <Link to={`/checkout?trainer=${trainer.id}`}>
-                          <Button size="sm">Subscribe</Button>
-                        </Link>
+                        {(!isAuthenticated || isStudent) && (
+                          <Link to={`/checkout?trainer=${trainer.id}`}>
+                            <Button size="sm">Subscribe</Button>
+                          </Link>
+                        )}
                       </div>
                     </div>
                   </CardContent>

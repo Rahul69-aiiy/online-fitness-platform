@@ -28,15 +28,15 @@ export const getConversations = async (req, res) => {
       const otherId = msg.senderId === userId ? msg.receiverId : msg.senderId;
       const otherUser = msg.senderId === userId ? msg.receiver : msg.sender;
       if (!conversationMap.has(otherId)) {
-        conversationMap[otherId] = {
+        conversationMap.set(otherId, {
           otherUser,
           lastMessage: msg,
           unreadCount: 0,
-        };
+        });
       }
       // Count messages from other user that are unread (no isRead field yet)
       if (msg.receiverId === userId && !msg.isRead) {
-        const existing = conversationMap[otherId];
+        const existing = conversationMap.get(otherId);
         if (existing) existing.unreadCount += 1;
       }
     }
@@ -69,7 +69,7 @@ export const getConversationMessages = async (req, res) => {
     const limit = parseInt(req.query.limit) || 30;
     const skip = (page - 1) * limit;
 
-    const [messages, total] = await Promise.all([
+    const [messages, total, otherUser] = await Promise.all([
       prisma.message.findMany({
         where: {
           OR: [
@@ -81,7 +81,7 @@ export const getConversationMessages = async (req, res) => {
           sender: { select: { id: true, name: true, avatar: true } },
           receiver: { select: { id: true, name: true, avatar: true } },
         },
-        orderBy: { sentAt: 'asc' },
+        orderBy: { sentAt: 'desc' },
         skip,
         take: limit,
       }),
@@ -93,6 +93,10 @@ export const getConversationMessages = async (req, res) => {
           ],
         },
       }),
+      prisma.user.findUnique({
+        where: { id: otherUserId },
+        select: { id: true, name: true, avatar: true, role: true }
+      }),
     ]);
 
     // Mark messages as read
@@ -103,7 +107,8 @@ export const getConversationMessages = async (req, res) => {
 
     res.json({
       success: true,
-      data: messages,
+      data: messages.reverse(),
+      otherUser,
       pagination: {
         page,
         limit,
@@ -114,6 +119,24 @@ export const getConversationMessages = async (req, res) => {
     });
   } catch (error) {
     console.error('Get conversation messages error:', error);
+    res.status(500).json({ success: false, message: 'An unexpected error occurred. Please try again later.' });
+  }
+};
+
+// Mark all messages in a conversation as read
+export const markAsRead = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { otherUserId } = req.params;
+
+    await prisma.message.updateMany({
+      where: { senderId: otherUserId, receiverId: userId, isRead: false },
+      data: { isRead: true },
+    });
+
+    res.json({ success: true, message: 'Messages marked as read' });
+  } catch (error) {
+    console.error('Mark as read error:', error);
     res.status(500).json({ success: false, message: 'An unexpected error occurred. Please try again later.' });
   }
 };
@@ -160,19 +183,6 @@ export const sendMessage = async (req, res, next) => {
     res.status(201).json({ success: true, data: message });
   } catch (error) {
     console.error('Send message error:', error);
-    res.status(500).json({ success: false, message: 'An unexpected error occurred. Please try again later.' });
-  }
-};
-
-// Get total unread message count for notification badge
-export const getUnreadCount = async (req, res) => {
-  try {
-    const count = await prisma.message.count({
-      where: { receiverId: req.user.id, isRead: false },
-    });
-    res.json({ success: true, data: { unreadCount: count } });
-  } catch (error) {
-    console.error('Get unread count error:', error);
     res.status(500).json({ success: false, message: 'An unexpected error occurred. Please try again later.' });
   }
 };

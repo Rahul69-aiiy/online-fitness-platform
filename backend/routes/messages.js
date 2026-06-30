@@ -3,7 +3,7 @@ import {
   getConversations,
   getConversationMessages,
   sendMessage,
-  getUnreadCount,
+  markAsRead,
 } from '../controllers/messageController.js';
 import { isAuthenticated } from '../middlewares/middleware.js';
 
@@ -15,6 +15,6 @@ router.use(isAuthenticated);
 router.get('/conversations', getConversations);
 router.get('/conversations/:otherUserId', getConversationMessages);
 router.post('/send', sendMessage);
-router.get('/unread-count', getUnreadCount);
+router.post('/read/:otherUserId', markAsRead);
 
 export default router;

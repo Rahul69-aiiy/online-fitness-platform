@@ -13,7 +13,7 @@ export const createReview = async (req, res) => {
         rating: parseInt(rating),
         comment
       },
-      include: { user: true }
+      include: { user: { omit: { password: true } } }
     });
 
     // Recalculate trainer rating
@@ -37,7 +37,7 @@ export const getReviewsByTrainer = async (req, res) => {
   try {
     const reviews = await prisma.review.findMany({
       where: { trainerId: req.params.trainerId },
-      include: { user: true },
+      include: { user: { omit: { password: true } } },
       orderBy: { date: 'desc' }
     });
 
@@ -74,7 +74,7 @@ export const updateReview = async (req, res, next) => {
         rating: rating ? parseInt(rating) : undefined,
         comment: comment || undefined
       },
-      include: { user: true }
+      include: { user: { omit: { password: true } } }
     });
 
     const reviews = await prisma.review.findMany({ where: { trainerId: updatedReview.trainerId } });

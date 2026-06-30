@@ -9,6 +9,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import api from "@/lib/api.js";
 import useToastStore from "@/store/useToastStore";
+import useAuthStore from "@/store/useAuthStore";
 
 const registerSchema = z.object({
   name: z
@@ -33,6 +34,7 @@ const registerSchema = z.object({
 
 export default function StudentRegister({role, setRole}) {
   const toast = useToastStore((s) => s.toast);
+  const fetchMe = useAuthStore((s) => s.fetchMe);
   const { register, handleSubmit, formState: { errors } } = useForm({resolver: zodResolver(registerSchema),});
   const navigate = useNavigate();
 
@@ -47,8 +49,9 @@ export default function StudentRegister({role, setRole}) {
     const res = await api.post("/auth/register/student", payload);
 
     console.log("REGISTER SUCCESS:", res.data);
+    await fetchMe();
 
-    role === "trainer" ? navigate("/trainer/dashboard") : navigate("/dashboard");
+    navigate("/dashboard");
   } catch (error) {
     toast.error(error.message || "Failed to register student");
   }

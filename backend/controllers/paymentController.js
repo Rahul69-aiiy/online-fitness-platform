@@ -12,7 +12,13 @@ export const createOrder = async (req, res, next) => {
 
     const plan = await prisma.subscriptionPlan.findUnique({
       where: { id: planId },
-      include: { trainer: { include: { user: true } } },
+      include: {
+        trainer: {
+          include: {
+            user: { omit: { password: true } }
+          }
+        }
+      },
     });
     if (!plan) return next(new ExpressError("Plan not found", 404));
 

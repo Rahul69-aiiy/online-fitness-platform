@@ -1,28 +1,5 @@
-import rateLimit from "express-rate-limit"
 import jwt from "jsonwebtoken"
 import prisma from "../config/db.js";
-
-export const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  handler: (req, res) => {
-    res.status(429).json({
-      success: false,
-      message: "Too many requests from this IP, please try again later.",
-    });
-  },
-});
-
-export const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 10,
-  handler: (req, res) => {
-    res.status(429).json({
-      success: false,
-      message: "Too many login attempts from this IP, please try again later.",
-    });
-  },
-});
 
 export const isAuthenticated = async (req, res, next) => {
   const token = req.cookies.token;

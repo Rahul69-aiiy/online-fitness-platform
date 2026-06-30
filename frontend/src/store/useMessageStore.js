@@ -11,8 +11,7 @@ const useMessageStore = create((set, get) => ({
   msgLoading: false,
 
   activeConversationId: null,
-
-  unreadCount: 0,
+  activeUser: null,
 
   setActiveConversation: (id) => set({ activeConversationId: id }),
 
@@ -22,12 +21,33 @@ const useMessageStore = create((set, get) => ({
       const res = await api.get(`/messages/conversations?page=${page}&limit=20`);
       if (res.data?.success) {
         const incoming = res.data.data;
-        set((s) => ({
-          conversations:
-            page === 1 ? incoming : [...s.conversations, ...incoming],
-          convPagination: res.data.pagination,
-          convLoading: false,
-        }));
+        set((s) => {
+          if (page === 1) {
+            // Merge incoming page 1 with existing conversations to preserve pagination
+            const newConvs = [...incoming];
+            const incomingIds = new Set(incoming.map((c) => c.otherUser?.id));
+            for (const existingConv of s.conversations) {
+              if (existingConv.otherUser?.id && !incomingIds.has(existingConv.otherUser.id)) {
+                newConvs.push(existingConv);
+              }
+            }
+            return {
+              conversations: newConvs,
+              convPagination: {
+                ...res.data.pagination,
+                page: s.convPagination.page, // Preserve current page depth
+                totalPages: Math.max(s.convPagination.totalPages, res.data.pagination.totalPages)
+              },
+              convLoading: false,
+            };
+          } else {
+            return {
+              conversations: [...s.conversations, ...incoming],
+              convPagination: res.data.pagination,
+              convLoading: false,
+            };
+          }
+        });
       }
     } catch (err) {
       console.error('fetchConversations error:', err);
@@ -46,10 +66,9 @@ const useMessageStore = create((set, get) => ({
         set((s) => ({
           messages: page === 1 ? incoming : [...incoming, ...s.messages],
           msgPagination: res.data.pagination,
+          activeUser: res.data.otherUser || s.activeUser,
           msgLoading: false,
         }));
-        // Refresh unread count after reading
-        get().fetchUnreadCount();
         // Refresh conversation list to update unread badges
         get().fetchConversations(1);
       }
@@ -74,29 +93,30 @@ const useMessageStore = create((set, get) => ({
     }
   },
 
-  receiveNewMessage: (message) => {
+  receiveNewMessage: async (message) => {
     const { activeConversationId } = get();
     const isActive =
       message.senderId === activeConversationId ||
       message.receiverId === activeConversationId;
+
     if (isActive) {
       set((s) => ({ messages: [...s.messages, message] }));
+
+      // If we are actively viewing this conversation and it's an incoming message, mark it as read immediately
+      if (message.senderId === activeConversationId) {
+        try {
+          await api.post(`/messages/read/${activeConversationId}`);
+        } catch (err) {
+          console.error("Failed to mark message as read:", err);
+        }
+      }
     }
-    set((s) => ({ unreadCount: s.unreadCount + 1 }));
-    // Refresh conversations list
+
+    // Refresh conversations list to get updated lastMessage and unreadCounts
     get().fetchConversations(1);
   },
 
-  fetchUnreadCount: async () => {
-    try {
-      const res = await api.get('/messages/unread-count');
-      if (res.data?.success) {
-        set({ unreadCount: res.data.data.unreadCount });
-      }
-    } catch {}
-  },
-
-  clearMessages: () => set({ messages: [], msgPagination: { page: 1, totalPages: 1, hasMore: false } }),
+  clearMessages: () => set({ messages: [], activeUser: null, msgPagination: { page: 1, totalPages: 1, hasMore: false } }),
 }));
 
 export default useMessageStore;

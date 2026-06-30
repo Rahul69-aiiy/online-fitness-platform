@@ -17,6 +17,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { CATEGORIES } from "@/data/constants";
 import api from "@/lib/api.js";
 import useToastStore from "@/store/useToastStore";
+import useAuthStore from "@/store/useAuthStore";
 
 const trainerSchema = z.object({
   name: z.string().trim().min(3, "Name must be at least 3 characters"),
@@ -64,6 +65,7 @@ const trainerSchema = z.object({
 
 export default function TrainerRegister({ role, setRole }) {
   const toast = useToastStore((s) => s.toast);
+  const fetchMe = useAuthStore((s) => s.fetchMe);
   const [currentStep, setCurrentStep] = useState(1);
   const {
         register,
@@ -152,6 +154,7 @@ export default function TrainerRegister({ role, setRole }) {
         "/auth/register/trainer",
         finalData
       );
+      await fetchMe();
       navigate("/trainer/dashboard");
     } catch (error) {
       toast.error(error.message || "Failed to register trainer");

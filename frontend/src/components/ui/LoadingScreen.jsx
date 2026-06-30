@@ -19,10 +19,10 @@ export default function LoadingScreen({ message = "Loading..." }) {
           className="relative mb-8"
         >
           {/* Outer glowing halo */}
-          <div className="absolute inset-0 rounded-2xl bg-primary/20 blur-md animate-ping duration-1000" />
+          <div className="absolute inset-0 rounded-3xl bg-primary/20 blur-md animate-ping duration-1000" />
           
-          <div className="relative w-16 h-16 bg-card border border-border rounded-2xl flex items-center justify-center shadow-2xl overflow-hidden">
-            <img src="/favicon.svg" alt="PhysiQ Logo" className="w-10 h-10 object-contain" />
+          <div className="relative w-28 h-28 rounded-3xl overflow-hidden flex items-center justify-center shadow-2xl">
+            <img src="/favicon.svg" alt="PhysiQ Logo" className="w-28 h-28 object-cover" />
           </div>
         </motion.div>
 

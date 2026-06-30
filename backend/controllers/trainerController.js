@@ -19,7 +19,7 @@ export const getTrainers = async (req, res) => {
       ];
     }
     if (category) {
-      where.categories = { has: category };
+      where.categories = { has: category.toUpperCase() };
     }
     if (rating) {
       where.rating = { gte: rating };
@@ -28,7 +28,11 @@ export const getTrainers = async (req, res) => {
     const [trainers, total] = await Promise.all([
       prisma.trainerProfile.findMany({
         where,
-        include: { user: true, plans: true, reviews: { take: 3 } },
+        include: {
+          user: { omit: { password: true } },
+          plans: true,
+          reviews: { take: 3 }
+        },
         skip,
         take: limit,
         orderBy: { rating: 'desc' }
@@ -58,9 +62,13 @@ export const getTrainerById = async (req, res) => {
     const trainer = await prisma.trainerProfile.findUnique({
       where: { id: req.params.id },
       include: {
-        user: true,
+        user: { omit: { password: true } },
         plans: true,
-        reviews: { include: { user: true } }
+        reviews: {
+          include: {
+            user: { omit: { password: true } }
+          }
+        }
       }
     });
 
@@ -101,11 +109,11 @@ export const updateTrainerProfile = async (req, res) => {
         where: { userId: req.user.id },
         data: { 
           specialization: specialization || undefined, 
-          experience: parseInt(experience)|| undefined, 
+          experience: parseInt(experience),
           bio: bio || undefined, 
           primaryLocation: primaryLocation || undefined, 
           certifications: certifications || undefined, 
-          categories: categories || undefined 
+          categories: categories !== undefined ? categories.map(c => c.toUpperCase()) : undefined 
         },
         include: { 
             user: {

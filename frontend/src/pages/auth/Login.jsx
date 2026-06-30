@@ -42,7 +42,11 @@ export default function Login() {
     try {
       const result = await login({ email: data.email, password: data.password });
       if (result?.success) {
-        navigate("/dashboard");
+        if (result.user?.role === 'TRAINER') {
+          navigate("/trainer/dashboard");
+        } else {
+          navigate("/dashboard");
+        }
       } else {
         toast.error(result?.message || "Login failed");
       }
@@ -56,8 +60,12 @@ export default function Login() {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       const token = await result.user.getIdToken();
-      await googleLogin(token);
-      navigate("/dashboard");
+      const loginResult = await googleLogin(token);
+      if (loginResult?.user?.role === 'TRAINER') {
+        navigate("/trainer/dashboard");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (error) {
         toast.error(error.message || "Google login failed");
       }

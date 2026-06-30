@@ -312,7 +312,7 @@ export default function TrainerProfile() {
                     </div>
                   );
 
-                  return isSubscribed ? (
+                  return isSubscribed || (isAuthenticated && !isStudent) ? (
                     <div key={plan.id || plan.name}>{content}</div>
                   ) : (
                     <Link
@@ -323,15 +323,17 @@ export default function TrainerProfile() {
                     </Link>
                   );
                 })}
-                {!isSubscribed ? (
-                  <Link to={`/checkout?trainer=${trainer.id}`}>
-                    <Button className="w-full py-6 mt-4">Subscribe Now</Button>
-                  </Link>
-                ) : (
-                  <Button disabled className="w-full py-6 mt-4 bg-emerald-500/20 text-emerald-500 border border-emerald-500/30 cursor-not-allowed">
-                    Already Subscribed
-                  </Button>
-                )}
+                {!isAuthenticated || isStudent ? (
+                  !isSubscribed ? (
+                    <Link to={`/checkout?trainer=${trainer.id}`}>
+                      <Button className="w-full py-6 mt-4">Subscribe Now</Button>
+                    </Link>
+                  ) : (
+                    <Button disabled className="w-full py-6 mt-4 bg-emerald-500/20 text-emerald-500 border border-emerald-500/30 cursor-not-allowed">
+                      Already Subscribed
+                    </Button>
+                  )
+                ) : null}
               </CardContent>
             </Card>
 

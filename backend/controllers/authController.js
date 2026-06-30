@@ -36,9 +36,9 @@ const studentRegister = async (req, res, next) => {
       sameSite: "Lax",
     };
 
-    delete newUser.password;
-    const token = createToken(newUser)
-    res.status(200).cookie("token", token, options).json({success: true, message: "User registered successfully", user: newUser});
+    const { password: _, ...userWithoutPassword } = newUser;
+    const token = createToken(userWithoutPassword);
+    res.status(200).cookie("token", token, options).json({success: true, message: "User registered successfully", user: userWithoutPassword});
 
   } catch (error) {
     console.error("Student registration error:", error);
@@ -144,6 +144,7 @@ export const login = async(req, res, next) => {
 
       const User = await prisma.user.findUnique({
         where: { email },
+        include: { trainerProfile: true },
       })
 
       if(!User) {
@@ -162,10 +163,10 @@ export const login = async(req, res, next) => {
         sameSite: "Lax",
       };
       
-      delete User.password;
-      const token = createToken(User)
+      const { password: _, ...userWithoutPassword } = User;
+      const token = createToken(userWithoutPassword)
 
-      res.status(200).cookie("token", token, options).json({success: true,message: "Login successful", user: User});
+      res.status(200).cookie("token", token, options).json({success: true,message: "Login successful", user: userWithoutPassword});
     } catch(error) {
       console.error("Login error:", error);
       res.status(500).json({
@@ -189,7 +190,8 @@ export const googleLogin = async (req, res, next) => {
     const email = decoded.email;
 
     const User = await prisma.user.findUnique({
-      where: { email }
+      where: { email },
+      include: { trainerProfile: true },
     });
 
     if(!User) {

@@ -5,19 +5,16 @@ import {
   MessageSquare,
   Settings,
   LogOut,
-  Users,
   CreditCard,
   Menu,
   X,
   Home,
-  PackagePlus,
 } from "lucide-react";
 
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 import useAuthStore from "@/store/useAuthStore";
-import NotificationBell from "@/components/ui/NotificationBell";
 
 export default function DashboardLayout({ children, role = "student" }) {
   const location = useLocation();
@@ -28,8 +25,8 @@ export default function DashboardLayout({ children, role = "student" }) {
   // for mobile sidebar
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const handleLogout = async () => {
-    await logout();
+  const handleLogout = () => {
+    logout();
     navigate("/login");
   };
 
@@ -57,7 +54,9 @@ export default function DashboardLayout({ children, role = "student" }) {
         {/* Logo */}
         <div className="p-4 border-b border-border flex items-center gap-2">
           <Link to="/" className="flex items-center gap-2">
-            <img src="/favicon.svg" alt="physiq logo" className="w-8 h-8" />
+            <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0">
+              <img src="/favicon.svg" alt="physiq logo" className="w-10 h-10 object-cover" />
+            </div>
             <span className="text-xl font-bold tracking-tight">PhysiQ</span>
           </Link>
         </div>
@@ -117,8 +116,6 @@ export default function DashboardLayout({ children, role = "student" }) {
           <div className="flex-1" />
 
           <div className="flex items-center gap-4">
-            <NotificationBell />
-
             <div className="w-8 h-8 rounded-full bg-secondary border border-border overflow-hidden">
               <img src={authUser?.avatar || "/user.jpg"} alt={authUser?.name || "User"} className="w-full h-full object-cover" />
             </div>
@@ -147,7 +144,9 @@ export default function DashboardLayout({ children, role = "student" }) {
             {/* Header */}
             <div className="p-6 border-b border-border flex items-center justify-between">
               <Link to="/" className="flex items-center gap-2">
-                <img src="/favicon.svg" alt="physiq logo" className="w-8 h-8" />
+                <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0">
+                  <img src="/favicon.svg" alt="physiq logo" className="w-10 h-10 object-cover" />
+                </div>
                 <span className="text-xl font-bold">PhysiQ</span>
               </Link>
 

@@ -6,7 +6,7 @@ let io = null;
 
 export function emitToUser(userId, event, data) {
   if (!io) return;
-  const socketId = onlineUsers[userId];
+  const socketId = onlineUsers.get(userId);
   if (socketId) {
     io.to(socketId).emit(event, data);
   }
