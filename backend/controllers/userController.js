@@ -38,7 +38,11 @@ export const deleteCurrentUser = async (req, res) => {
       where: { id: req.user.id },
     });
 
-    res.clearCookie("token");
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+    });
     res.json({ success: true, message: "Account deleted successfully" });
   } catch (error) {
     console.error("Delete user error:", error);

@@ -32,8 +32,8 @@ const studentRegister = async (req, res, next) => {
     // to make sure cookies are not modified in frontend
     const options = {
       httpOnly: true,
-      // secure: true,
-      sameSite: "Lax",
+      secure: true,
+      sameSite: "none",
     };
 
     const { password: _, ...userWithoutPassword } = newUser;
@@ -108,8 +108,9 @@ const trainerRegister = async(req, res, next) => {
       .status(200)
       .cookie("token", token, {
         httpOnly: true,
-        sameSite: "Lax",
-      })
+        secure: true,
+        sameSite: "none",
+      })  
       .json({
         success: true,
         message: "Trainer registered successfully",
@@ -159,8 +160,8 @@ export const login = async(req, res, next) => {
 
       const options = {
         httpOnly: true,
-        // secure: true,
-        sameSite: "Lax",
+        secure: true,
+        sameSite: "none",
       };
       
       const { password: _, ...userWithoutPassword } = User;
@@ -178,7 +179,11 @@ export const login = async(req, res, next) => {
 
 
 export const logout = async (req, res) => {
-  res.clearCookie("token").status(200).json({success: true, message: "Logged out successfully" });
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  }).status(200).json({success: true, message: "Logged out successfully" });
 };
 
 export const googleLogin = async (req, res, next) => {
@@ -200,8 +205,8 @@ export const googleLogin = async (req, res, next) => {
 
     const options = {
       httpOnly: true,
-      // secure: true,
-      sameSite: "Lax",
+      secure: true,
+      sameSite: "none",
     };
     const { password, ...user } = User
     const token = createToken(user)
