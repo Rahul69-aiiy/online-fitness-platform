@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { CATEGORIES } from "@/data/constants";
-import useTrainersQuery from "@/hooks/useTrainersQuery";
+import { useTrainersQuery } from "@/hooks/useTrainerQuery";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, Users, CheckCircle2 } from "lucide-react";
 import { useEffect } from "react";

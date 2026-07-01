@@ -6,7 +6,7 @@ import { CATEGORIES } from "../data/constants";
 import { Card, CardContent } from "@/components/ui/card";
 import { Star, Users, CheckCircle2, Search, Filter, ChevronLeft, ChevronRight } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
-import useTrainersQuery from "@/hooks/useTrainersQuery";
+import { useTrainersQuery } from "@/hooks/useTrainerQuery";
 import useAuthStore from "@/store/useAuthStore";
 
 export default function TrainerDiscovery() {

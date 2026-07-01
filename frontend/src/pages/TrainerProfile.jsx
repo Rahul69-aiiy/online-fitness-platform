@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import ReviewCard from "@/components/ui/ReviewCard";
 import useAuthStore from "@/store/useAuthStore";
-import useTrainerDetailQuery from "@/hooks/useTrainerDetailQuery";
+import { useTrainerDetailQuery } from "@/hooks/useTrainerQuery";
 import {
   useReviewsQuery,
   useCreateReview,

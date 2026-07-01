@@ -16,7 +16,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import Navbar from "@/components/layout/Navbar";
 import Spinner from "@/components/ui/Spinner";
 import useAuthStore from "@/store/useAuthStore";
-import useTrainerDetailQuery from "@/hooks/useTrainerDetailQuery";
+import { useTrainerDetailQuery } from "@/hooks/useTrainerQuery";
 import { useCreateOrder, useVerifyPayment } from "@/hooks/usePaymentQuery";
 import useToastStore from "@/store/useToastStore";
 import { openRazorpayPayment } from "@/services/razorpayService";
