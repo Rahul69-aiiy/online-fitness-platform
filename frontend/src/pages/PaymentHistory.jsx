@@ -123,19 +123,11 @@ export default function PaymentHistory() {
 
                       {/* Details */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2 flex-wrap">
-                          <div>
-                            <p className="font-bold text-base">{trainerName}</p>
-                            <p className="text-sm text-primary font-medium">
-                              {plan?.name || "Subscription Plan"}
-                            </p>
-                          </div>
-                          <span
-                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${status.className}`}
-                          >
-                            <StatusIcon className="w-3.5 h-3.5" />
-                            {status.label}
-                          </span>
+                        <div>
+                          <p className="font-bold text-base">{trainerName}</p>
+                          <p className="text-sm text-primary font-medium">
+                            {plan?.name || "Subscription Plan"}
+                          </p>
                         </div>
 
                         <div className="flex flex-wrap gap-4 mt-2 text-xs text-muted-foreground">
@@ -157,8 +149,14 @@ export default function PaymentHistory() {
                         </div>
                       </div>
 
-                      {/* Amount */}
-                      <div className="text-right shrink-0">
+                      {/* Amount and Status */}
+                      <div className="flex flex-col items-center gap-1.5 shrink-0 text-center">
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${status.className}`}
+                        >
+                          <StatusIcon className="w-3.5 h-3.5" />
+                          {status.label}
+                        </span>
                         <p className="text-xl font-bold">
                           ₹{Number(payment.amount).toLocaleString("en-IN")}
                         </p>
